@@ -63,11 +63,7 @@ export default function Home() {
     setInput(username);
     setFeedback(null);
     setIsSummoning(true);
-
-    window.setTimeout(() => {
-      setIsSummoning(false);
-      router.push(`/u/${username}`);
-    }, 450);
+    router.push(`/u/${username}`);
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {

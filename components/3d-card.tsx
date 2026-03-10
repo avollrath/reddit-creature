@@ -251,7 +251,7 @@ function ThreeDCard({
         ref={cardRef}
         id={innerId}
         style={cardStyle}
-        className="relative bg-gray-800 rounded-2xl overflow-hidden"
+        className="relative overflow-visible bg-transparent outline-none focus:outline-none focus-visible:outline-none"
         role="img"
         tabIndex={0}
         onFocus={handleMouseEnter}
@@ -259,20 +259,15 @@ function ThreeDCard({
       >
         {backgroundImage && (
           <div
-            className="absolute inset-0 rounded-2xl"
+            className="absolute inset-0"
             style={backgroundStyle}
             aria-hidden="true"
           />
         )}
 
-        <div
-          className="absolute inset-0 border-2 border-white/10 rounded-2xl pointer-events-none"
-          aria-hidden="true"
-        />
-
         {enableGlow && (
           <div
-            className="absolute inset-0 z-0 rounded-2xl pointer-events-none"
+            className="absolute inset-0 z-0 pointer-events-none"
             style={glowStyle}
             aria-hidden="true"
           />

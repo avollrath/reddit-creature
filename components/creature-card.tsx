@@ -1,4 +1,6 @@
 import ThreeDCard from "@/components/3d-card";
+import Balatro from "@/components/balatro";
+import CreatureArtworkImage from "@/components/creature-artwork-image";
 import Plasma from "@/components/plasma";
 import LiquidChrome from "@/components/liquid-chrome";
 import { Card } from "@/components/ui/card";
@@ -10,6 +12,7 @@ type CreatureCardProps = {
   rarity: "Common" | "Rare" | "Epic" | "Legendary";
   rarityAccent: string;
   imageUrl: string;
+  fallbackImageUrl?: string;
   username: string;
   metadata: {
     power: number;
@@ -214,38 +217,57 @@ function TopOverlayEffect({
 }) {
   if (rarity === "Epic" || rarity === "Legendary") {
     return (
-      <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[26px] opacity-[0.08] mix-blend-screen">
-        <LiquidChrome />
-      </div>
+      <>
+        <div className="pointer-events-none absolute inset-0 z-45 overflow-hidden rounded-[26px] opacity-[0.12] mix-blend-screen">
+          <Balatro
+            color1={rarity === "Legendary" ? "#ffb224" : "#ff5ad9"}
+            color2={rarity === "Legendary" ? "#ffe27a" : "#5ac8ff"}
+            color3={rarity === "Legendary" ? "#311507" : "#250a32"}
+            spinSpeed={rarity === "Legendary" ? 5.3 : 5.9}
+            spinAmount={0.15}
+            contrast={3.4}
+            lighting={0.46}
+            pixelFilter={780}
+            opacity={0.78}
+          />
+        </div>
+        <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[26px] opacity-[0.11] mix-blend-screen">
+          <LiquidChrome />
+        </div>
+      </>
     );
   }
 
   if (rarity === "Rare") {
     return (
-      <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[26px] opacity-[0.05] mix-blend-screen">
-        <Plasma
-          color="#22d3ee"
-          speed={0.55}
-          direction="forward"
-          scale={1.08}
-          opacity={0.75}
-          mouseInteractive={true}
-        />
-      </div>
+      <>
+        <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[26px] opacity-[0.065] mix-blend-screen">
+          <Plasma
+            color="#22d3ee"
+            speed={0.59}
+            direction="forward"
+            scale={1.1}
+            opacity={0.76}
+            mouseInteractive={true}
+          />
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[26px] opacity-[0.03] mix-blend-screen">
-      <Plasma
-        color="#ffffff"
-        speed={0.35}
-        direction="forward"
-        scale={1}
-        opacity={0.45}
-        mouseInteractive={true}
-      />
-    </div>
+    <>
+      <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[26px] opacity-[0.04] mix-blend-screen">
+        <Plasma
+          color="#ffffff"
+          speed={0.37}
+          direction="forward"
+          scale={1.01}
+          opacity={0.45}
+          mouseInteractive={true}
+        />
+      </div>
+    </>
   );
 }
 
@@ -256,36 +278,37 @@ export default function CreatureCard({
   rarity,
   rarityAccent,
   imageUrl,
+  fallbackImageUrl,
   username,
   metadata,
   stats,
 }: CreatureCardProps) {
   const theme = rarityThemes[rarity];
-  const safeName = name.length > 26 ? `${name.slice(0, 26)}…` : name;
   const cardNumber = `${username.slice(0, 3).toUpperCase()}-${metadata.power}`;
+  const sigilNumber = (metadata.power % 8) + 1;
 
   return (
     <ThreeDCard
-      className="w-full max-w-[380px]"
+      className="w-full max-w-[570px]"
       innerId="creature-card"
-      maxRotation={12}
-      glowOpacity={0.18}
-      shadowBlur={35}
-      parallaxOffset={28}
+      maxRotation={15}
+      glowOpacity={0.22}
+      shadowBlur={42}
+      parallaxOffset={34}
       transitionDuration="0.35s"
       enableGlow
       enableShadow
       enableParallax
-      hoverPadding={16}
+      hoverPadding={0}
     >
-      <Card className="relative aspect-[63/88] overflow-visible rounded-none bg-transparent text-white shadow-none">
+      <Card className="relative aspect-[63/88] gap-0 overflow-visible rounded-none bg-transparent py-0 text-white shadow-none ring-0">
         <div
           className={`relative z-10 flex h-full flex-col overflow-hidden rounded-[26px] border ${theme.frame}`}
         >
           <div className={`pointer-events-none absolute inset-0 ${theme.inner}`} />
 
-          <div className="relative flex h-full flex-col px-3 pb-3 pt-3">
-            <div className="relative px-1 pb-3">
+          <div className="relative flex h-full flex-col px-3 pb-1.5 pt-1.5">
+            <div className="relative px-1 pb-2">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
@@ -295,12 +318,12 @@ export default function CreatureCard({
                       <ClassIcon rarity={rarity} />
                     </div>
 
-                    <p className="truncate text-[0.92rem] font-black leading-none tracking-[-0.035em] text-white">
-                      {safeName}
+                    <p className="text-[0.98rem] font-extrabold leading-[1.08] tracking-[-0.03em] text-white">
+                      {name}
                     </p>
                   </div>
 
-                  <div className="mt-2 flex items-center gap-2 text-[7px] uppercase tracking-[0.2em] text-white/52">
+                  <div className="mt-2 flex items-center gap-2 text-[8.5px] uppercase tracking-[0.2em] text-white/52">
                     <span className="truncate">u/{username}</span>
                     <span className="text-white/25">•</span>
                     <span>No. {cardNumber}</span>
@@ -308,7 +331,7 @@ export default function CreatureCard({
                 </div>
 
                 <div
-                  className={`rounded-full border px-2 py-0.5 text-[7px] font-bold uppercase tracking-[0.22em] ${rarityStyles[rarity]}`}
+                  className={`rounded-full border px-2 py-0.5 text-[8.5px] font-bold uppercase tracking-[0.22em] ${rarityStyles[rarity]}`}
                 >
                   {rarity}
                 </div>
@@ -320,32 +343,33 @@ export default function CreatureCard({
                 className={`relative rounded-[16px] border p-[4px] ${theme.artFrame}`}
               >
                 <div
-                  className={`pointer-events-none absolute inset-0 bg-gradient-to-b ${theme.glow}`}
+                  className={`pointer-events-none absolute inset-0 rounded-[16px] bg-gradient-to-b ${theme.glow}`}
                 />
-                <div className="relative aspect-[1/1.03] overflow-hidden rounded-[12px] bg-black">
-                  <img
-                    src={imageUrl}
-                    alt={name}
-                    className="absolute inset-0 h-full w-full object-cover saturation-[1.16] contrast-[1.08]"
-                  />
+                  <div className="relative aspect-[1.42/1] overflow-hidden rounded-[12px] bg-black">
+                    <CreatureArtworkImage
+                      key={imageUrl}
+                      src={imageUrl}
+                      fallbackSrc={fallbackImageUrl ?? imageUrl}
+                      alt={name}
+                    />
 
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(255,255,255,0.14),transparent_28%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(255,255,255,0.14),transparent_28%)]" />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_24%,transparent_76%,rgba(0,0,0,0.32))]" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-black/6 to-black/10" />
 
                   <div className="absolute inset-x-0 bottom-0 p-3">
                     <div className="rounded-[12px] bg-black/34 px-3 py-2 backdrop-blur-sm">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-[7px] font-semibold uppercase tracking-[0.24em] text-white/42">
+                        <p className="text-[8.5px] font-semibold uppercase tracking-[0.24em] text-white/42">
                           {metadata.traitLabel}
                         </p>
                         <div
-                          className={`rounded-full border px-2 py-0.5 text-[7px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
+                          className={`rounded-full border px-2 py-0.5 text-[8.5px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
                         >
                           {metadata.affinity}
                         </div>
                       </div>
-                      <p className="mt-1.5 text-[0.82rem] font-bold leading-tight text-white">
+                      <p className="mt-1.5 text-[1rem] font-bold leading-tight text-white">
                         {title}
                       </p>
                     </div>
@@ -354,22 +378,22 @@ export default function CreatureCard({
               </div>
             </div>
 
-            <div className="relative pt-3">
+            <div className="relative pt-2">
               <div className="flex flex-wrap gap-1.5">
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[6.5px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
+                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
                 >
                   <TagIcon type="class" />
                   {metadata.affinity}
                 </span>
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[6.5px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
+                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
                 >
                   <TagIcon type="trait" />
                   {metadata.traitLabel}
                 </span>
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[6.5px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
+                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
                 >
                   <TagIcon type="relic" />
                   {rarityAccent}
@@ -377,23 +401,7 @@ export default function CreatureCard({
               </div>
             </div>
 
-            <div className="relative pt-3">
-              <div className={`rounded-[12px] border px-3 py-2.5 ${theme.panel}`}>
-                <div className="flex items-center gap-2">
-                  <div className={`h-px w-5 ${theme.line}`} />
-                  <p className="text-[7px] uppercase tracking-[0.26em] text-white/38">
-                    Lore Text
-                  </p>
-                  <div className={`h-px flex-1 ${theme.line}`} />
-                </div>
-
-                <p className="mt-2 text-[9px] italic leading-4.5 text-white/76">
-                  {description}
-                </p>
-              </div>
-            </div>
-
-            <div className="relative mt-auto pt-3">
+            <div className="relative pt-2">
               <div className={`rounded-[12px] border p-2 ${theme.panel}`}>
                 <div className="grid grid-cols-5 gap-1.5">
                   {[
@@ -407,7 +415,7 @@ export default function CreatureCard({
                       key={label}
                       className={`rounded-[9px] border px-1.5 py-2 ${theme.stat}`}
                     >
-                      <div className="flex items-center gap-1 text-[6.5px] uppercase tracking-[0.18em] text-white/44">
+                      <div className="flex items-center gap-1 text-[8px] uppercase tracking-[0.18em] text-white/44">
                         <StatIcon
                           type={
                             icon as
@@ -421,7 +429,7 @@ export default function CreatureCard({
                         <span>{label}</span>
                       </div>
 
-                      <p className="mt-1.5 text-[9px] font-bold leading-tight text-white">
+                      <p className="mt-1.5 text-[10.5px] font-bold leading-tight text-white">
                         {value}
                       </p>
                     </div>
@@ -430,9 +438,30 @@ export default function CreatureCard({
               </div>
             </div>
 
-            <div className="relative pt-3">
+            <div className="relative pt-2">
+              <div className={`h-[140px] rounded-[12px] border px-3 py-3 ${theme.panel}`}>
+                <div className="space-y-3 text-[13px] italic leading-6 text-white/84">
+                  {description.split(/\n\s*\n/).map((paragraph, index) => (
+                    <p key={`${index}-${paragraph.slice(0, 24)}`}>{paragraph}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="relative pt-2 text-center">
+              <a
+                href="https://www.vollrath.dev"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[11px] font-medium text-white/62 underline decoration-white/25 underline-offset-4 transition hover:text-white/88"
+              >
+                www.vollrath.dev
+              </a>
+            </div>
+
+            <div className="relative mt-auto pt-2">
               <div className="rounded-[10px] bg-black/14 px-3 py-2">
-                <div className="flex items-center justify-between gap-2 text-[6.5px] uppercase tracking-[0.2em] text-white/40">
+                <div className="flex items-center justify-between gap-2 text-[8px] uppercase tracking-[0.2em] text-white/40">
                   <span>Edition 01</span>
                   <span>{cardNumber}</span>
                   <span className={theme.accent}>{rarity}</span>
@@ -440,9 +469,21 @@ export default function CreatureCard({
                 </div>
               </div>
             </div>
+
+            <div className="pointer-events-none absolute bottom-[48px] right-[6px] z-30">
+              <div className="relative flex h-[58px] w-[58px] items-center justify-center rounded-full border border-orange-300/48 bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.96)_44%,rgba(17,24,39,0.88)_62%,rgba(251,146,60,0.14)_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.12),inset_0_-12px_18px_rgba(0,0,0,0.78),0_8px_18px_rgba(0,0,0,0.34),0_0_16px_rgba(251,146,60,0.26)] backdrop-blur-md">
+                <div className="pointer-events-none absolute inset-[2px] rounded-full border border-orange-200/34 bg-[conic-gradient(from_210deg,rgba(255,241,220,0.78),rgba(251,146,60,0.1),rgba(255,245,230,0.34),rgba(120,53,15,0.04),rgba(255,241,220,0.78))] opacity-95" />
+                <div className="pointer-events-none absolute inset-[7px] rounded-full border border-black/46 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,0.08),rgba(255,255,255,0.01)_28%,rgba(0,0,0,0.24)_52%,rgba(0,0,0,0.88)_100%)]" />
+                <div className="pointer-events-none absolute left-[13px] top-[9px] h-[10px] w-[24px] rounded-full bg-orange-100/22 blur-[4px]" />
+                <div className="pointer-events-none absolute inset-x-[10px] top-[4px] h-[8px] rounded-full bg-white/18 blur-[3px]" />
+                <span className="relative z-10 text-[1.45rem] font-black leading-none text-white [text-shadow:0_1px_0_rgba(255,255,255,0.18),0_4px_10px_rgba(0,0,0,0.65)]">
+                  {sigilNumber}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div className="pointer-events-none absolute inset-0 z-40 rounded-[26px] bg-[linear-gradient(120deg,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0.012)_18%,rgba(255,255,255,0)_34%,rgba(255,255,255,0.025)_58%,rgba(255,255,255,0.012)_78%,rgba(255,255,255,0.04)_100%)] opacity-[0.12]" />
+          <div className="pointer-events-none absolute inset-0 z-40 rounded-[26px] bg-[linear-gradient(120deg,rgba(255,255,255,0.085)_0%,rgba(255,255,255,0.016)_18%,rgba(255,255,255,0)_34%,rgba(255,255,255,0.038)_58%,rgba(255,255,255,0.013)_78%,rgba(255,255,255,0.05)_100%)] opacity-[0.15]" />
 
           <TopOverlayEffect rarity={rarity} />
         </div>

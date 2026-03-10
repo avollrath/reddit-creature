@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import CreatureCard from "@/components/creature-card";
 import ShareCreatureLink from "@/components/share-creature-link";
 import { resolveCreature } from "@/lib/creatures";
+import { resolveCreatureCardCopy } from "@/lib/creature-card-copy";
 import { normalizeUsername } from "@/lib/creatures/local-profile";
 import { getAbsoluteUrl } from "@/lib/site";
 
@@ -64,6 +65,14 @@ export default async function UserCreaturePage({
   }
 
   const creature = resolveCreature({ username: normalizedUsername });
+  const cardCopy = await resolveCreatureCardCopy(creature);
+  const creatureWithArtwork = {
+    ...creature,
+    name: cardCopy.name,
+    description: cardCopy.lore,
+    imageUrl: `/u/${normalizedUsername}/artwork`,
+    fallbackImageUrl: creature.imageUrl,
+  };
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#27272a_0%,_#09090b_45%,_#000_100%)] px-6 py-16 text-white">
@@ -89,10 +98,15 @@ export default async function UserCreaturePage({
             deterministic creature system, ready for future Reddit profile data.
           </p>
 
+          <p className="mt-3 max-w-lg text-sm leading-6 text-white/52">
+            AI artwork may take a few seconds on first load. Generated images are
+            reused after caching, and the local creature art remains the fallback.
+          </p>
+
           <ShareCreatureLink username={normalizedUsername} />
         </div>
 
-        <CreatureCard {...creature} />
+        <CreatureCard {...creatureWithArtwork} />
       </div>
     </main>
   );
