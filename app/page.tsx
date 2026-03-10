@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CreatureCard from "@/components/creature-card";
-import { getMockCreature } from "@/lib/mock-creatures";
+import EmptyCreatureState from "@/components/empty-creature-state";
+import ExampleUsernames from "@/components/example-usernames";
+import SummonForm from "@/components/summon-form";
+import { resolveCreature } from "@/lib/creatures";
 
 const exampleUsernames = [
   "trendy_summoner",
@@ -13,16 +16,86 @@ const exampleUsernames = [
 ];
 
 export default function Home() {
-  const [input, setInput] = useState("trendy_summoner");
-  const [submittedUsername, setSubmittedUsername] = useState("trendy_summoner");
+  const [input, setInput] = useState("");
+  const [submittedUsername, setSubmittedUsername] = useState<string | null>(null);
+  const [isSummoning, setIsSummoning] = useState(false);
+  const [feedback, setFeedback] = useState<{
+    kind: "error" | "success";
+    message: string;
+  } | null>(null);
 
   const creature = useMemo(() => {
-    return getMockCreature(submittedUsername);
+    return submittedUsername
+      ? resolveCreature({ username: submittedUsername })
+      : null;
   }, [submittedUsername]);
+
+  useEffect(() => {
+    if (!feedback) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setFeedback(null);
+    }, 2500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [feedback]);
+
+  function normalizeUsername(value: string) {
+    return value.trim().replace(/^u\//i, "");
+  }
+
+  function validateUsername(value: string) {
+    const normalized = normalizeUsername(value);
+
+    if (!normalized) {
+      return "Enter a Reddit username to summon a creature.";
+    }
+
+    if (normalized.length < 3 || normalized.length > 20) {
+      return "Usernames should be 3 to 20 characters long.";
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(normalized)) {
+      return "Use letters, numbers, and underscores only.";
+    }
+
+    return null;
+  }
+
+  function summonUsername(username: string) {
+    setInput(username);
+    setFeedback(null);
+    setIsSummoning(true);
+
+    window.setTimeout(() => {
+      setSubmittedUsername(username);
+      setIsSummoning(false);
+      setFeedback({
+        kind: "success",
+        message: `Summoned u/${username}.`,
+      });
+    }, 450);
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSubmittedUsername(input);
+    if (isSummoning) {
+      return;
+    }
+
+    const validationMessage = validateUsername(input);
+
+    if (validationMessage) {
+      setFeedback({
+        kind: "error",
+        message: validationMessage,
+      });
+      return;
+    }
+
+    summonUsername(normalizeUsername(input));
   }
 
   return (
@@ -43,59 +116,23 @@ export default function Home() {
             Reddit data and AI generation.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-8 max-w-lg">
-            <label
-              htmlFor="username"
-              className="mb-3 block text-xs font-semibold uppercase tracking-[0.24em] text-white/55"
-            >
-              Reddit username
-            </label>
+          <SummonForm
+            value={input}
+            onChange={setInput}
+            onSubmit={handleSubmit}
+            isSummoning={isSummoning}
+            feedback={feedback}
+          />
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <input
-                id="username"
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="e.g. andre"
-                className="h-12 flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 text-white outline-none transition focus:border-emerald-400/60 focus:bg-white/8"
-              />
-
-              <button
-                type="submit"
-                className="h-12 rounded-2xl bg-emerald-400 px-5 font-semibold text-black transition hover:scale-[1.02] hover:bg-emerald-300"
-              >
-                Summon
-              </button>
-            </div>
-          </form>
-
-          <div className="mt-5 flex flex-wrap gap-2 text-sm text-white/65">
-            {exampleUsernames.map((username) => {
-              const isActive = submittedUsername === username;
-
-              return (
-                <button
-                  key={username}
-                  type="button"
-                  onClick={() => {
-                    setInput(username);
-                    setSubmittedUsername(username);
-                  }}
-                  className={`rounded-full border px-4 py-2 transition ${
-                    isActive
-                      ? "border-white bg-white/10 text-white"
-                      : "border-white/10 bg-white/5 hover:bg-white/10"
-                  }`}
-                >
-                  {username}
-                </button>
-              );
-            })}
-          </div>
+          <ExampleUsernames
+            usernames={exampleUsernames}
+            activeUsername={submittedUsername}
+            disabled={isSummoning}
+            onSelect={summonUsername}
+          />
         </div>
 
-        <CreatureCard {...creature} />
+        {creature ? <CreatureCard {...creature} /> : <EmptyCreatureState />}
       </div>
     </main>
   );

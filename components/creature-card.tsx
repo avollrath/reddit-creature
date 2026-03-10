@@ -14,8 +14,14 @@ type CreatureCardProps = {
   title: string;
   description: string;
   rarity: "Common" | "Rare" | "Epic" | "Legendary";
+  rarityAccent: string;
   imageUrl: string;
   username: string;
+  metadata: {
+    power: number;
+    affinity: string;
+    traitLabel: string;
+  };
   stats: {
     karma: string;
     cakeDay: string;
@@ -28,6 +34,20 @@ const rarityStyles = {
   Rare: "border-sky-400/40 bg-sky-400/10 text-sky-200",
   Epic: "border-fuchsia-400/40 bg-fuchsia-400/10 text-fuchsia-200",
   Legendary: "border-amber-400/40 bg-amber-400/10 text-amber-200",
+};
+
+const rarityPanelStyles = {
+  Common: "border-white/10 bg-black/45",
+  Rare: "border-sky-300/20 bg-sky-950/20",
+  Epic: "border-fuchsia-300/20 bg-fuchsia-950/20",
+  Legendary: "border-amber-300/25 bg-amber-950/20",
+};
+
+const rarityGlowStyles = {
+  Common: "from-white/8 via-white/0 to-white/0",
+  Rare: "from-sky-300/20 via-cyan-300/8 to-transparent",
+  Epic: "from-fuchsia-300/22 via-pink-300/10 to-transparent",
+  Legendary: "from-amber-300/24 via-yellow-200/10 to-transparent",
 };
 
 function TopOverlayEffect({
@@ -77,8 +97,10 @@ export default function CreatureCard({
   title,
   description,
   rarity,
+  rarityAccent,
   imageUrl,
   username,
+  metadata,
   stats,
 }: CreatureCardProps) {
   return (
@@ -96,6 +118,9 @@ export default function CreatureCard({
       hoverPadding={16}
     >
       <Card className="relative overflow-hidden rounded-[28px] border border-white/10 bg-neutral-950 text-white shadow-2xl">
+        <div
+          className={`pointer-events-none absolute inset-x-0 top-0 z-20 h-28 bg-gradient-to-b ${rarityGlowStyles[rarity]}`}
+        />
         <div className="relative z-10 h-[440px] overflow-hidden">
           <img
             src={imageUrl}
@@ -118,11 +143,26 @@ export default function CreatureCard({
           </div>
 
           <div className="absolute inset-x-0 bottom-0 p-4">
-            <div className="rounded-[24px] border border-white/10 bg-black/45 p-4 backdrop-blur-md">
+            <div
+              className={`rounded-[24px] border p-4 backdrop-blur-md ${rarityPanelStyles[rarity]}`}
+            >
               <p className="mb-1 text-[11px] uppercase tracking-[0.24em] text-emerald-300/90">
                 {title}
               </p>
               <h2 className="text-3xl font-black tracking-tight">{name}</h2>
+              <div className="mt-3 flex flex-wrap gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">
+                <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1">
+                  {metadata.affinity}
+                </span>
+                <span
+                  className={`rounded-full border px-3 py-1 ${rarityStyles[rarity]}`}
+                >
+                  {metadata.traitLabel}
+                </span>
+                <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-white/78">
+                  {rarityAccent}
+                </span>
+              </div>
               <p className="mt-2 text-sm leading-relaxed text-white/78">
                 {description}
               </p>
@@ -136,7 +176,21 @@ export default function CreatureCard({
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="relative z-10 grid grid-cols-3 gap-3 pb-4">
+        <CardContent className="relative z-10 grid grid-cols-2 gap-3 pb-4 sm:grid-cols-3">
+          <div className="rounded-2xl border border-white/10 bg-black/30 p-3 backdrop-blur-sm">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
+              Power
+            </p>
+            <p className="mt-1 text-sm font-bold text-white">{metadata.power}</p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-black/30 p-3 backdrop-blur-sm">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
+              Class
+            </p>
+            <p className="mt-1 text-sm font-bold text-white">{metadata.affinity}</p>
+          </div>
+
           <div className="rounded-2xl border border-white/10 bg-black/30 p-3 backdrop-blur-sm">
             <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
               Karma
