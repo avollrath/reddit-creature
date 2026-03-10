@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import CreatureCard from "@/components/creature-card";
 import ShareCreatureLink from "@/components/share-creature-link";
-import { resolveCreature } from "@/lib/creatures";
+import { resolveCreatureFromUsername } from "@/lib/creatures";
 import { resolveCreatureCardCopy } from "@/lib/creature-card-copy";
 import { normalizeUsername } from "@/lib/creatures/local-profile";
 import { getAbsoluteUrl } from "@/lib/site";
@@ -19,7 +19,7 @@ export async function generateMetadata({
 }: UserCreaturePageProps): Promise<Metadata> {
   const { username } = await params;
   const normalizedUsername = normalizeUsername(username);
-  const creature = resolveCreature({ username: normalizedUsername });
+  const creature = await resolveCreatureFromUsername(normalizedUsername);
   const canonicalPath = `/u/${normalizedUsername}`;
   const canonicalUrl = getAbsoluteUrl(canonicalPath);
   const previewImageUrl = getAbsoluteUrl(`${canonicalPath}/opengraph-image`);
@@ -64,7 +64,7 @@ export default async function UserCreaturePage({
     redirect(`/u/${normalizedUsername}`);
   }
 
-  const creature = resolveCreature({ username: normalizedUsername });
+  const creature = await resolveCreatureFromUsername(normalizedUsername);
   const cardCopy = await resolveCreatureCardCopy(creature);
   const creatureWithArtwork = {
     ...creature,
@@ -80,27 +80,26 @@ export default async function UserCreaturePage({
         <div className="max-w-xl">
           <Link
             href="/"
-            className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+            className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-base font-medium text-white/72 transition hover:bg-white/10 hover:text-white"
           >
-            Back to summon
+            Summon another
           </Link>
 
-          <p className="mt-6 text-sm font-semibold uppercase tracking-[0.28em] text-emerald-300/80">
+          <p className="mt-6 text-base font-medium uppercase tracking-[0.28em] text-emerald-300/80">
             Reddit Creature
           </p>
 
-          <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
-            Creature card for u/{normalizedUsername}
+          <h1 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
+            Your Reddit creature has emerged
           </h1>
 
-          <p className="mt-4 max-w-lg text-base leading-7 text-white/70">
-            This card is resolved locally from the username using the current
-            deterministic creature system, ready for future Reddit profile data.
+          <p className="mt-4 max-w-lg text-lg font-medium leading-8 text-white/72">
+            Real Reddit signals shape the rarity, power, lore, and mood, so each reveal
+            feels pulled from the profile behind the name.
           </p>
 
-          <p className="mt-3 max-w-lg text-sm leading-6 text-white/52">
-            AI artwork may take a few seconds on first load. Generated images are
-            reused after caching, and the local creature art remains the fallback.
+          <p className="mt-3 max-w-lg text-base font-normal leading-7 text-white/56">
+            First-time art can take a beat to bloom. After that, sharing and saving are quick.
           </p>
 
           <ShareCreatureLink username={normalizedUsername} />

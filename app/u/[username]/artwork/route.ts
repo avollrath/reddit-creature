@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { resolveCreature } from "@/lib/creatures";
+import { resolveCreatureFromUsername } from "@/lib/creatures";
 import { normalizeUsername } from "@/lib/creatures/local-profile";
 import { resolveCreatureArtwork } from "@/lib/artwork";
 
@@ -12,7 +12,7 @@ type ArtworkRouteProps = {
 export async function GET(request: Request, { params }: ArtworkRouteProps) {
   const { username } = await params;
   const normalizedUsername = normalizeUsername(username);
-  const creature = resolveCreature({ username: normalizedUsername });
+  const creature = await resolveCreatureFromUsername(normalizedUsername);
   console.info("[artwork-route] Artwork request started", {
     username: normalizedUsername,
   });

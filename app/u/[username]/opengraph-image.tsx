@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { resolveCreature } from "@/lib/creatures";
+import { resolveCreatureFromUsername } from "@/lib/creatures";
 import { normalizeUsername } from "@/lib/creatures/local-profile";
 
 export const alt = "Reddit Creature social preview";
@@ -37,7 +37,7 @@ type OgImageProps = {
 export default async function OgImage({ params }: OgImageProps) {
   const { username } = await params;
   const normalizedUsername = normalizeUsername(username);
-  const creature = resolveCreature({ username: normalizedUsername });
+  const creature = await resolveCreatureFromUsername(normalizedUsername);
   const rarityStyle = rarityStyles[creature.rarity];
 
   return new ImageResponse(

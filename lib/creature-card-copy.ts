@@ -45,8 +45,9 @@ function getApiKey() {
 
 function buildPrompt(creature: Creature) {
   return [
-    `Preferred username display form: ${capitalizeTitle(creature.username)}`,
-    `Username to weave into the title: ${creature.username}`,
+    `Preferred username display form: ${creature.displayName}`,
+    `Display name to weave into the title: ${creature.displayName}`,
+    `Normalized username handle: ${creature.username}`,
     `Deterministic creature name: ${creature.name}`,
     `Deterministic role title: ${creature.title}`,
     `Deterministic description: ${creature.description}`,
@@ -56,6 +57,14 @@ function buildPrompt(creature: Creature) {
     `Rarity accent: ${creature.rarityAccent}`,
     `Power: ${creature.metadata.power}`,
     `Alignment: ${creature.stats.alignment}`,
+    `Grounding source: ${creature.grounding.source}`,
+    `Behavior archetype: ${creature.grounding.behaviorArchetype}`,
+    `Account age in years: ${creature.grounding.accountAgeYears ?? "unknown"}`,
+    `Verified: ${creature.grounding.isVerified}`,
+    `Premium: ${creature.grounding.hasPremium}`,
+    `Prefers night mode: ${creature.grounding.prefersNightmode}`,
+    `Over 18 profile: ${creature.grounding.over18}`,
+    `Moderator-like: ${creature.grounding.isModeratorLike}`,
   ].join(" ");
 }
 
@@ -63,7 +72,7 @@ function createCacheKey(creature: Creature, prompt: string) {
   return createHash("sha256")
     .update(
       JSON.stringify({
-        version: 2,
+        version: 3,
         endpoint: "chat-completions+simple-text-fallback",
         username: creature.username,
         model: TEXT_MODEL,
@@ -136,7 +145,7 @@ function normalizeForComparison(value: string) {
 
 function buildUsernameFallbackTitle(creature: Creature) {
   const baseTitle = creature.title.replace(/^The\s+/i, "");
-  return `${creature.username}, ${baseTitle}`;
+  return `${creature.displayName}, ${baseTitle}`;
 }
 
 function capitalizeSegment(value: string) {
@@ -177,9 +186,9 @@ function sanitizeTitle(value: string, creature: Creature) {
   const sanitized = capitalizeTitle(sanitizeText(value, fallback, 64));
   const wordCount = getWordCount(sanitized);
   const normalizedTitle = normalizeForComparison(sanitized);
-  const normalizedUsername = normalizeForComparison(creature.username);
+  const normalizedUsername = normalizeForComparison(creature.displayName);
   const hasAwkwardByPattern = new RegExp(
-    `\\bby\\s+${escapeForRegExp(creature.username)}\\b`,
+    `\\bby\\s+${escapeForRegExp(creature.displayName)}\\b`,
     "i"
   ).test(sanitized);
   const hasDeterministicWord = /\bdeterministic\b/i.test(sanitized);
@@ -248,11 +257,12 @@ function sanitizeLore(value: string, fallback: string, creature: Creature) {
     return fallback;
   }
 
-  const displayUsername = capitalizeTitle(creature.username);
+  const displayUsername = creature.displayName;
   const escapedUsername = escapeForRegExp(creature.username);
+  const escapedDisplayName = escapeForRegExp(creature.displayName);
 
   return sanitized.replace(
-    new RegExp(`\\b${escapedUsername}\\b`, "gi"),
+    new RegExp(`\\b(?:${escapedUsername}|${escapedDisplayName})\\b`, "gi"),
     displayUsername
   );
 }
@@ -504,6 +514,7 @@ const systemPrompt = [
 "Make the title feel collectible, mysterious, and powerful.",
 "Prefer mythic phrasing over descriptive phrasing.",
 "Avoid awkward grammar or forced username placement.",
+"Ground the tone in the profile signals you were given: karma, account age, commenter/poster balance, verification, premium, and night-mode preference should subtly influence the title and lore.",
 
 "Never include:",
 "hashtags, emojis, internet slang, jokes, or assistant-like wording.",

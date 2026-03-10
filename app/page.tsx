@@ -1,19 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import EmptyCreatureState from "@/components/empty-creature-state";
-import ExampleUsernames from "@/components/example-usernames";
 import SummonForm from "@/components/summon-form";
 import { normalizeUsername } from "@/lib/creatures/local-profile";
-
-const exampleUsernames = [
-  "trendy_summoner",
-  "lurkfather",
-  "memecleric",
-  "andre",
-  "voidprophet99",
-];
 
 export default function Home() {
   const router = useRouter();
@@ -23,11 +13,6 @@ export default function Home() {
     kind: "error" | "success";
     message: string;
   } | null>(null);
-
-  const activeExample = useMemo(() => {
-    const normalized = input.trim() ? normalizeUsername(input) : null;
-    return exampleUsernames.includes(normalized ?? "") ? normalized : null;
-  }, [input]);
 
   useEffect(() => {
     if (!feedback) {
@@ -45,11 +30,11 @@ export default function Home() {
     const normalized = normalizeUsername(value);
 
     if (!value.trim() || normalized === "unknown_redditor") {
-      return "Enter a Reddit username to summon a creature.";
+      return "Drop in a Reddit handle and let the summoning begin.";
     }
 
     if (normalized.length < 3 || normalized.length > 20) {
-      return "Usernames should be 3 to 20 characters long.";
+      return "That handle feels off. Reddit usernames should be 3 to 20 characters.";
     }
 
     if (!/^[a-zA-Z0-9_]+$/.test(normalized)) {
@@ -87,20 +72,23 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#27272a_0%,_#09090b_45%,_#000_100%)] px-6 py-16 text-white">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-10 lg:flex-row lg:items-center lg:justify-between">
-        <div className="max-w-xl">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-emerald-300/80">
+      <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+        <div className="max-w-2xl">
+          <p className="mb-3 text-sm font-medium uppercase tracking-[0.28em] text-emerald-300/80">
             Reddit Creature
           </p>
 
-          <h1 className="text-4xl font-black tracking-tight sm:text-5xl">
-            Turn a Reddit profile into a fantasy creature card
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+            Summon a Reddit legend as a collectible creature card
           </h1>
 
-          <p className="mt-4 max-w-lg text-base leading-7 text-white/70">
-            This prototype now generates a deterministic creature for any username,
-            so we can validate the interaction and card system before adding real
-            Reddit data and AI generation.
+          <p className="mt-4 text-lg font-medium leading-8 text-white/72">
+            Type a Reddit handle and watch it transform into a strange, luminous,
+            share-ready card with rarity, lore, and creature art all its own.
+          </p>
+
+          <p className="mt-4 text-sm font-normal leading-7 text-white/52">
+            Every summon feels like opening a fresh pull from a dark little internet booster pack.
           </p>
 
           <SummonForm
@@ -110,16 +98,7 @@ export default function Home() {
             isSummoning={isSummoning}
             feedback={feedback}
           />
-
-          <ExampleUsernames
-            usernames={exampleUsernames}
-            activeUsername={activeExample}
-            disabled={isSummoning}
-            onSelect={summonUsername}
-          />
         </div>
-
-        <EmptyCreatureState />
       </div>
     </main>
   );

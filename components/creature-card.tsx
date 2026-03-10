@@ -1,5 +1,6 @@
 import ThreeDCard from "@/components/3d-card";
 import Balatro from "@/components/balatro";
+import CardParticleLayer from "@/components/card-particle-layer";
 import CreatureArtworkImage from "@/components/creature-artwork-image";
 import Plasma from "@/components/plasma";
 import LiquidChrome from "@/components/liquid-chrome";
@@ -97,6 +98,34 @@ const rarityThemes = {
     artFrame:
       "border-amber-200/12 bg-[linear-gradient(180deg,rgba(253,224,71,0.11),rgba(251,191,36,0.04)_20%,rgba(0,0,0,0.12)_100%)]",
     glow: "from-amber-300/14 via-yellow-200/6 to-transparent",
+  },
+} as const;
+
+const rarityFxThemes = {
+  Common: {
+    glow:
+      "bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.16),rgba(255,255,255,0.05),transparent_72%)] opacity-45",
+    aura: "",
+    shineOpacity: "opacity-[0.12]",
+  },
+  Rare: {
+    glow:
+      "bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.48),rgba(14,165,233,0.28),transparent_72%)] opacity-70 animate-card-pulse-glow",
+    aura:
+      "bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.22),rgba(34,211,238,0.1),transparent_74%)] opacity-70",
+    shineOpacity: "opacity-[0.18]",
+  },
+  Epic: {
+    glow:
+      "bg-[radial-gradient(circle_at_center,rgba(244,114,182,0.5),rgba(217,70,239,0.24),transparent_72%)] opacity-80 animate-card-pulse-glow",
+    aura: "",
+    shineOpacity: "opacity-[0.22]",
+  },
+  Legendary: {
+    glow:
+      "bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.54),rgba(249,115,22,0.28),transparent_72%)] opacity-85 animate-card-pulse-glow",
+    aura: "",
+    shineOpacity: "opacity-[0.28]",
   },
 } as const;
 
@@ -271,6 +300,46 @@ function TopOverlayEffect({
   );
 }
 
+function RarityFxLayers({
+  rarity,
+}: {
+  rarity: CreatureCardProps["rarity"];
+}) {
+  const fx = rarityFxThemes[rarity];
+
+  return (
+    <>
+      <div className="pointer-events-none absolute inset-[-18px] z-0 rounded-[34px] blur-[24px]">
+        <div className={`h-full w-full rounded-[34px] ${fx.glow}`} />
+      </div>
+
+      {fx.aura ? (
+        <div className="pointer-events-none absolute inset-[-28px] z-0 rounded-[36px] blur-[30px]">
+          <div className={`h-full w-full rounded-[36px] ${fx.aura}`} />
+        </div>
+      ) : null}
+
+      <div
+        className={`pointer-events-none absolute inset-0 z-40 overflow-hidden rounded-[26px] ${fx.shineOpacity}`}
+      >
+        <div className="animate-card-shine-sweep absolute inset-y-0 left-[-85%] w-[80%] bg-[linear-gradient(120deg,transparent_18%,rgba(255,255,255,0.42)_48%,transparent_78%)]" />
+      </div>
+    </>
+  );
+}
+
+function RarityParticles({
+  rarity,
+}: {
+  rarity: CreatureCardProps["rarity"];
+}) {
+  if (rarity === "Epic" || rarity === "Legendary") {
+    return <CardParticleLayer rarity={rarity} />;
+  }
+
+  return null;
+}
+
 export default function CreatureCard({
   name,
   title,
@@ -291,17 +360,19 @@ export default function CreatureCard({
     <ThreeDCard
       className="w-full max-w-[570px]"
       innerId="creature-card"
-      maxRotation={15}
-      glowOpacity={0.22}
-      shadowBlur={42}
-      parallaxOffset={34}
+      maxRotation={18}
+      glowOpacity={0.26}
+      shadowBlur={48}
+      parallaxOffset={38}
       transitionDuration="0.35s"
       enableGlow
       enableShadow
       enableParallax
       hoverPadding={0}
     >
-      <Card className="relative aspect-[63/88] gap-0 overflow-visible rounded-none bg-transparent py-0 text-white shadow-none ring-0">
+      <Card className="relative aspect-[63/88] gap-0 overflow-visible rounded-none bg-transparent py-0 text-white shadow-none ring-0 [font-family:Arial,Helvetica,sans-serif]">
+        <RarityFxLayers rarity={rarity} />
+        <RarityParticles rarity={rarity} />
         <div
           className={`relative z-10 flex h-full flex-col overflow-hidden rounded-[26px] border ${theme.frame}`}
         >
@@ -483,7 +554,7 @@ export default function CreatureCard({
             </div>
           </div>
 
-          <div className="pointer-events-none absolute inset-0 z-40 rounded-[26px] bg-[linear-gradient(120deg,rgba(255,255,255,0.085)_0%,rgba(255,255,255,0.016)_18%,rgba(255,255,255,0)_34%,rgba(255,255,255,0.038)_58%,rgba(255,255,255,0.013)_78%,rgba(255,255,255,0.05)_100%)] opacity-[0.15]" />
+          <div className="pointer-events-none absolute inset-0 z-40 rounded-[26px] bg-[linear-gradient(120deg,rgba(255,255,255,0.085)_0%,rgba(255,255,255,0.016)_18%,rgba(255,255,255,0)_34%,rgba(255,255,255,0.038)_58%,rgba(255,255,255,0.013)_78%,rgba(255,255,255,0.05)_100%)] opacity-[0.12]" />
 
           <TopOverlayEffect rarity={rarity} />
         </div>

@@ -27,6 +27,31 @@ export function buildCreatureArtworkPrompt(creature: Creature): string {
   const affinityHint =
     affinityMotifHints[creature.metadata.affinity] ||
     "futuristic fantasy textures, strange energy motifs, collectible illustration detail";
+  const groundingHints = [
+    creature.grounding.source === "reddit"
+      ? "Ground the character in real Reddit-profile signals rather than pure random fantasy."
+      : "This creature is grounded in the local deterministic fallback profile.",
+    creature.grounding.behaviorArchetype === "commenter"
+      ? "Emphasize a watchful speaker, lorekeeper, whisper-network presence, and reply-born intelligence."
+      : creature.grounding.behaviorArchetype === "poster"
+        ? "Emphasize a broadcasting presence, signal-summoning charisma, and creator-like dramatic stage energy."
+        : "Blend speaker and summoner energy into a balanced relic-bearing presence.",
+    creature.grounding.prefersNightmode
+      ? "Lean into darker nocturnal palette control, elegant void contrast, and midnight interface glow."
+      : "Allow brighter spectral color, cleaner illumination, and more open atmospheric light.",
+    creature.grounding.over18
+      ? "Allow a slightly sharper, stranger, more dangerous mood without becoming graphic."
+      : "Keep the mood wondrous and safe-for-broad-audience rather than menacing.",
+    creature.grounding.hasPremium
+      ? "Add prestige materials, gilded relic details, and luxe ornamental accents."
+      : "Keep the finish premium but slightly less ceremonial.",
+    creature.grounding.isModeratorLike
+      ? "Hint at a guardian, archivist, or threshold-warden role."
+      : "Avoid overt authority symbolism unless supported elsewhere.",
+    creature.grounding.accountAgeYears
+      ? `Account age mood: ${creature.grounding.accountAgeYears} years old, so balance veteran myth with modern neon clarity.`
+      : "Account age unavailable; keep the mythic age impression moderate.",
+  ].join(" ");
 
   return [
     `Create a single character illustration for a premium collectible trading card art window.`,
@@ -40,6 +65,7 @@ export function buildCreatureArtworkPrompt(creature: Creature): string {
     `COLOR DIRECTION: ${colorHint}.`,
     `MOTIF DIRECTION: ${affinityHint}.`,
     `STORY MOOD: ${creature.description}.`,
+    `GROUNDING HINTS: ${groundingHints}`,
 
     `COMPOSITION: one single main creature only, centered, medium shot or three-quarter portrait, large in frame, filling most of the image, strong readable silhouette, clear focal subject, suitable for a trading card illustration slot.`,
 

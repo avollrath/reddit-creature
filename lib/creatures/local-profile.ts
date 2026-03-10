@@ -9,5 +9,7 @@ export function createLocalProfileSnapshot(
 ): RedditProfileSnapshot {
   return {
     username: normalizeUsername(username),
+    displayName: username.trim().replace(/^u\//i, "") || normalizeUsername(username),
+    source: "local",
   };
 }

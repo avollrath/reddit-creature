@@ -44,6 +44,7 @@ function ThreeDCard({
 }: ThreeDCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const lastPointerRef = useRef({ x: 0.5, y: 0.5, insideViewport: false });
+  const [isRevealed, setIsRevealed] = useState(false);
 
   const [transform, setTransform] = useState({
     rotateX: 0,
@@ -115,7 +116,7 @@ function ThreeDCard({
       const distanceToCard = Math.hypot(clientX - cardCenterX, clientY - cardCenterY);
       const maxDistance = Math.hypot(viewportWidth, viewportHeight) * 0.6;
       const proximity = 1 - Math.min(distanceToCard / maxDistance, 1);
-      const viewportRotationScale = 0.18 + proximity * 0.2;
+      const viewportRotationScale = 0.24 + proximity * 0.26;
 
       applyTransform({
         xPct: normalizedX - 0.5,
@@ -150,7 +151,7 @@ function ThreeDCard({
         yPct,
         glowX: (mouseX / width) * 100,
         glowY: (mouseY / height) * 100,
-        rotationScale: 1,
+        rotationScale: 1.08,
         isHovered: true,
       });
     },
@@ -204,6 +205,14 @@ function ThreeDCard({
       window.removeEventListener("mouseleave", handleWindowMouseLeave);
     };
   }, [handleWindowMouseLeave, handleWindowMouseMove]);
+
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      setIsRevealed(true);
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
 
   const cardStyle: CSSProperties = {
     transform: `perspective(1000px) rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg) scale3d(1, 1, 1)`,
@@ -274,7 +283,9 @@ function ThreeDCard({
         )}
 
         <div style={contentStyle} className="relative z-10">
-          {children}
+          <div className={isRevealed ? "animate-card-reveal" : "opacity-0"}>
+            {children}
+          </div>
         </div>
       </div>
     </div>

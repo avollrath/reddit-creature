@@ -176,6 +176,21 @@ const rarityAccents: Record<CreatureRarity, string[]> = {
   Legendary: ["Auric Ember", "Crownfire", "Solar Relic"],
 };
 
+const commenterAffinities = ["Rune", "Void", "Blood", "Dream"];
+const posterAffinities = ["Ember", "Storm", "Wild", "Ash"];
+const balancedAffinities = ["Aether", "Moon", "Mist", "Bone"];
+
+const moderatorTraits = ["Thread Warden", "Archive Marshal", "Scroll Arbiter"];
+const commenterTraits = ["Reply Hexer", "Lorekeeper", "Comment Devourer"];
+const posterTraits = ["Signal Forger", "Meme Reliquary", "Chaos Tamer"];
+const veteranTraits = ["Ancient Archivist", "Dustbound Seer", "Relic Binder"];
+const premiumAccents = {
+  Common: "Polished Onyx",
+  Rare: "Gilded Neon",
+  Epic: "Velvet Crownfire",
+  Legendary: "Imperial Sunfoil",
+} as const;
+
 function hashString(value: string, seed = 0): number {
   let hash = seed || 2166136261;
 
@@ -222,6 +237,21 @@ function getRarity(seed: number): CreatureRarity {
   return "Common";
 }
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getRarityFromProfile(profile: RedditProfileSnapshot): CreatureRarity {
+  if (typeof profile.totalKarma !== "number") {
+    return "Common";
+  }
+
+  if (profile.totalKarma >= 100000) return "Legendary";
+  if (profile.totalKarma >= 25000) return "Epic";
+  if (profile.totalKarma >= 5000) return "Rare";
+  return "Common";
+}
+
 function formatCakeDay(profile: RedditProfileSnapshot, seed: number): string {
   const monthIndex =
     profile.cakeDayMonth && profile.cakeDayMonth >= 1 && profile.cakeDayMonth <= 12
@@ -265,30 +295,152 @@ function getPower(seed: number, rarity: CreatureRarity): number {
   return baseByRarity[rarity] + (deriveSeed(seed, 53) % 900);
 }
 
+function getPowerFromProfile(
+  profile: RedditProfileSnapshot,
+  seed: number,
+  rarity: CreatureRarity
+) {
+  const basePower = getPower(seed, rarity);
+
+  if (typeof profile.totalKarma !== "number") {
+    return basePower;
+  }
+
+  const karmaScore = Math.round(Math.log10(profile.totalKarma + 10) * 260);
+  const ageScore = Math.round((profile.accountAgeYears ?? 0) * 28);
+  const modifier =
+    (profile.hasPremium ? 120 : 0) +
+    (profile.isModeratorLike ? 130 : 0) +
+    (profile.isVerified || profile.hasVerifiedEmail ? 70 : 0);
+
+  return clamp(basePower + karmaScore + ageScore + modifier, 900, 5200);
+}
+
+function getAffinityPool(profile: RedditProfileSnapshot) {
+  if (profile.prefersNightmode) {
+    return ["Void", "Moon", "Dream", "Rune"];
+  }
+
+  if (profile.isModeratorLike) {
+    return ["Rune", "Bone", "Aether", "Moon"];
+  }
+
+  if (profile.behaviorArchetype === "commenter") {
+    return commenterAffinities;
+  }
+
+  if (profile.behaviorArchetype === "poster") {
+    return posterAffinities;
+  }
+
+  return balancedAffinities;
+}
+
+function getAffinity(profile: RedditProfileSnapshot, seed: number) {
+  const pool = getAffinityPool(profile);
+  return pick(pool.length ? pool : affinities, seed, 59);
+}
+
+function getTraitLabel(profile: RedditProfileSnapshot, seed: number) {
+  if ((profile.accountAgeYears ?? 0) >= 8) {
+    return pick(veteranTraits, seed, 109);
+  }
+
+  if (profile.isModeratorLike) {
+    return pick(moderatorTraits, seed, 107);
+  }
+
+  if (profile.behaviorArchetype === "commenter") {
+    return pick(commenterTraits, seed, 101);
+  }
+
+  if (profile.behaviorArchetype === "poster") {
+    return pick(posterTraits, seed, 103);
+  }
+
+  return pick(traitLabels, seed, 61);
+}
+
+function getRarityAccent(
+  profile: RedditProfileSnapshot,
+  rarity: CreatureRarity,
+  seed: number
+) {
+  if (profile.hasPremium || profile.isVerified) {
+    return premiumAccents[rarity];
+  }
+
+  return pick(rarityAccents[rarity], seed, 67);
+}
+
+function getAlignment(profile: RedditProfileSnapshot, seed: number) {
+  if (profile.isModeratorLike) {
+    return pick(["Lawful Good", "Lawful Neutral", "Neutral Good"], seed, 113);
+  }
+
+  if (profile.behaviorArchetype === "poster") {
+    return pick(["Chaotic Good", "Chaotic Neutral", "Neutral Good"], seed, 127);
+  }
+
+  if (profile.behaviorArchetype === "commenter") {
+    return pick(["True Neutral", "Lawful Evil", "Neutral Evil"], seed, 131);
+  }
+
+  return pick(alignments, seed, 43);
+}
+
 export function generateCreatureFromProfile(
   profile: RedditProfileSnapshot
 ): Creature {
   const seed = hashString(profile.username);
-  const rarity = getRarity(seed);
+  const rarity =
+    profile.source === "reddit"
+      ? getRarityFromProfile(profile)
+      : getRarity(seed);
   const karma = profile.totalKarma ?? getFallbackKarma(seed);
+  const affinity =
+    profile.source === "reddit" ? getAffinity(profile, seed) : pick(affinities, seed, 59);
+  const traitLabel =
+    profile.source === "reddit"
+      ? getTraitLabel(profile, seed)
+      : pick(traitLabels, seed, 61);
+  const power =
+    profile.source === "reddit"
+      ? getPowerFromProfile(profile, seed, rarity)
+      : getPower(seed, rarity);
 
   return {
     name: getCreatureName(seed),
     title: getTitle(seed),
     description: getDescription(seed),
     rarity,
-    rarityAccent: pick(rarityAccents[rarity], seed, 67),
+    rarityAccent:
+      profile.source === "reddit"
+        ? getRarityAccent(profile, rarity, seed)
+        : pick(rarityAccents[rarity], seed, 67),
     imageUrl: profile.preferredImageUrl || pick(imagePool, seed, 47),
     username: profile.username,
+    displayName: profile.displayName || profile.username,
     metadata: {
-      power: getPower(seed, rarity),
-      affinity: pick(affinities, seed, 59),
-      traitLabel: pick(traitLabels, seed, 61),
+      power,
+      affinity,
+      traitLabel,
+    },
+    grounding: {
+      source: profile.source ?? "local",
+      behaviorArchetype: profile.behaviorArchetype ?? "balanced",
+      accountAgeYears: profile.accountAgeYears ?? null,
+      isVerified: Boolean(profile.isVerified || profile.hasVerifiedEmail),
+      hasPremium: Boolean(profile.hasPremium),
+      prefersNightmode: Boolean(profile.prefersNightmode),
+      over18: Boolean(profile.over18),
+      isModeratorLike: Boolean(profile.isModeratorLike),
     },
     stats: {
       karma: formatKarmaValue(karma),
       cakeDay: formatCakeDay(profile, seed),
-      alignment: pick(alignments, seed, 43),
+      alignment:
+        profile.source === "reddit" ? getAlignment(profile, seed) : pick(alignments, seed, 43),
     },
   };
 }

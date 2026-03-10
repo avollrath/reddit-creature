@@ -4,6 +4,7 @@ import {
   normalizeUsername,
 } from "@/lib/creatures/local-profile";
 import type { Creature, RedditProfileSnapshot } from "@/lib/creatures/types";
+import { fetchRedditCreatureProfileSnapshot } from "@/lib/reddit";
 
 type ResolveCreatureInput = {
   username: string;
@@ -21,4 +22,14 @@ export function resolveCreature({
       : createLocalProfileSnapshot(normalizedUsername);
 
   return generateCreatureFromProfile(resolvedProfile);
+}
+
+export async function resolveCreatureFromUsername(username: string): Promise<Creature> {
+  const normalizedUsername = normalizeUsername(username);
+  const redditProfile = await fetchRedditCreatureProfileSnapshot(normalizedUsername);
+
+  return resolveCreature({
+    username: normalizedUsername,
+    profile: redditProfile,
+  });
 }

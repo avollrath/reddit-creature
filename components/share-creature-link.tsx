@@ -36,12 +36,12 @@ export default function ShareCreatureLink({
       await navigator.clipboard.writeText(absoluteUrl);
       setFeedback({
         kind: "success",
-        message: "Share link copied.",
+        message: "Link copied. Ready to send into the wild.",
       });
     } catch {
       setFeedback({
         kind: "error",
-        message: "Clipboard access is unavailable in this browser.",
+        message: "This browser refused the copy spell. Try again or copy it manually.",
       });
     }
   }
@@ -52,7 +52,7 @@ export default function ShareCreatureLink({
     if (!cardNode) {
       setFeedback({
         kind: "error",
-        message: "Card export is unavailable right now.",
+        message: "The card slipped out of frame. Try again in a second.",
       });
       return;
     }
@@ -70,12 +70,12 @@ export default function ShareCreatureLink({
       link.click();
       setFeedback({
         kind: "success",
-        message: "Creature card downloaded.",
+        message: "Card captured. Your summon is ready to keep.",
       });
     } catch {
       setFeedback({
         kind: "error",
-        message: "Image export failed in this browser.",
+        message: "That export fizzled. Try again in this browser or switch devices.",
       });
     } finally {
       setIsDownloading(false);
@@ -84,8 +84,8 @@ export default function ShareCreatureLink({
 
   return (
     <div className="mt-8 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 backdrop-blur-sm">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/45">
-        Share And Save
+      <p className="text-[12px] font-medium uppercase tracking-[0.24em] text-white/48">
+        Keep or share the summon
       </p>
 
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -97,18 +97,18 @@ export default function ShareCreatureLink({
           <button
             type="button"
             onClick={handleCopy}
-            className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-sm font-semibold text-white transition hover:scale-[1.02] hover:bg-white/12"
+            className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-base font-semibold text-white transition hover:scale-[1.02] hover:bg-white/12"
           >
-            Copy link
+            Copy Link
           </button>
 
           <button
             type="button"
             onClick={handleDownload}
             disabled={isDownloading}
-            className="rounded-2xl border border-emerald-300/20 bg-emerald-400/90 px-4 py-3 text-sm font-semibold text-black transition disabled:cursor-wait disabled:bg-emerald-400/75 hover:scale-[1.02] hover:bg-emerald-300"
+            className="rounded-2xl border border-emerald-300/20 bg-emerald-400/90 px-4 py-3 text-base font-bold text-black transition disabled:cursor-wait disabled:bg-emerald-400/75 hover:scale-[1.02] hover:bg-emerald-300"
           >
-            {isDownloading ? "Rendering..." : "Download PNG"}
+            {isDownloading ? "Rendering..." : "Save PNG"}
           </button>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function ShareCreatureLink({
           feedback?.kind === "error" ? "text-rose-200/85" : "text-white/60"
         }`}
       >
-        {feedback?.message ?? " "}
+        {feedback?.message ?? "Pocket the link or save the card art while the magic is still fresh."}
       </p>
     </div>
   );

@@ -6,8 +6,8 @@ export default function UserCreatureLoading() {
           <div className="h-full w-2/5 animate-loading-bar rounded-full bg-emerald-300" />
         </div>
 
-        <p className="mt-4 text-xs font-semibold uppercase tracking-[0.28em] text-emerald-300/80">
-          Summoning Creature
+        <p className="mt-4 text-xs font-medium uppercase tracking-[0.28em] text-emerald-300/80">
+          Calling the creature out of the feed
         </p>
       </div>
     </main>
