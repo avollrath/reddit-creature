@@ -1,4 +1,6 @@
 import ThreeDCard from "@/components/3d-card";
+import Plasma from "@/components/plasma";
+import LiquidChrome from "@/components/liquid-chrome";
 import {
   Card,
   CardContent,
@@ -22,15 +24,53 @@ type CreatureCardProps = {
 };
 
 const rarityStyles = {
-  Common:
-    "border-white/10 bg-white/5 text-white/70",
-  Rare:
-    "border-sky-400/40 bg-sky-400/10 text-sky-200",
-  Epic:
-    "border-fuchsia-400/40 bg-fuchsia-400/10 text-fuchsia-200",
-  Legendary:
-    "border-amber-400/40 bg-amber-400/10 text-amber-200",
+  Common: "border-white/10 bg-white/5 text-white/70",
+  Rare: "border-sky-400/40 bg-sky-400/10 text-sky-200",
+  Epic: "border-fuchsia-400/40 bg-fuchsia-400/10 text-fuchsia-200",
+  Legendary: "border-amber-400/40 bg-amber-400/10 text-amber-200",
 };
+
+function TopOverlayEffect({
+  rarity,
+}: {
+  rarity: CreatureCardProps["rarity"];
+}) {
+  if (rarity === "Epic" || rarity === "Legendary") {
+    return (
+      <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[28px] opacity-45 mix-blend-screen">
+        <LiquidChrome />
+      </div>
+    );
+  }
+
+  if (rarity === "Rare") {
+    return (
+      <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[28px] opacity-25 mix-blend-screen">
+        <Plasma
+          color="#22d3ee"
+          speed={0.6}
+          direction="forward"
+          scale={1.1}
+          opacity={0.8}
+          mouseInteractive={true}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[28px] opacity-10 mix-blend-screen">
+      <Plasma
+        color="#ffffff"
+        speed={0.4}
+        direction="forward"
+        scale={1}
+        opacity={0.5}
+        mouseInteractive={true}
+      />
+    </div>
+  );
+}
 
 export default function CreatureCard({
   name,
@@ -55,15 +95,15 @@ export default function CreatureCard({
       enableParallax
       hoverPadding={16}
     >
-      <Card className="overflow-hidden rounded-[28px] border border-white/10 bg-neutral-950 text-white shadow-2xl">
-        <div className="relative h-[440px] overflow-hidden">
+      <Card className="relative overflow-hidden rounded-[28px] border border-white/10 bg-neutral-950 text-white shadow-2xl">
+        <div className="relative z-10 h-[440px] overflow-hidden">
           <img
             src={imageUrl}
             alt={name}
-            className="h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover opacity-82"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-black/10" />
 
           <div className="absolute left-4 right-4 top-4 flex items-start justify-between gap-3">
             <div className="rounded-full border border-white/10 bg-black/40 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/70 backdrop-blur">
@@ -90,28 +130,28 @@ export default function CreatureCard({
           </div>
         </div>
 
-        <CardHeader className="border-t border-white/10 bg-white/[0.03]">
+        <CardHeader className="relative z-10 border-t border-white/10 bg-white/[0.03]">
           <CardTitle className="text-xs uppercase tracking-[0.24em] text-white/55">
             Creature Traits
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="grid grid-cols-3 gap-3 pb-4">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+        <CardContent className="relative z-10 grid grid-cols-3 gap-3 pb-4">
+          <div className="rounded-2xl border border-white/10 bg-black/30 p-3 backdrop-blur-sm">
             <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
               Karma
             </p>
             <p className="mt-1 text-sm font-bold text-white">{stats.karma}</p>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+          <div className="rounded-2xl border border-white/10 bg-black/30 p-3 backdrop-blur-sm">
             <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
               Cake Day
             </p>
             <p className="mt-1 text-sm font-bold text-white">{stats.cakeDay}</p>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+          <div className="rounded-2xl border border-white/10 bg-black/30 p-3 backdrop-blur-sm">
             <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
               Alignment
             </p>
@@ -121,10 +161,14 @@ export default function CreatureCard({
           </div>
         </CardContent>
 
-        <CardFooter className="justify-between border-white/10 bg-white/[0.02] text-xs text-white/55">
+        <CardFooter className="relative z-10 justify-between border-white/10 bg-black/20 text-xs text-white/55 backdrop-blur-sm">
           <span>Reddit Creature</span>
           <span>Prototype v1</span>
         </CardFooter>
+
+        <div className="pointer-events-none absolute inset-0 z-40 rounded-[28px] bg-[linear-gradient(120deg,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.03)_18%,rgba(255,255,255,0)_34%,rgba(255,255,255,0.08)_58%,rgba(255,255,255,0.02)_78%,rgba(255,255,255,0.12)_100%)] opacity-60" />
+
+        <TopOverlayEffect rarity={rarity} />
       </Card>
     </ThreeDCard>
   );

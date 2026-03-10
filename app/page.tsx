@@ -4,6 +4,14 @@ import { useMemo, useState } from "react";
 import CreatureCard from "@/components/creature-card";
 import { getMockCreature } from "@/lib/mock-creatures";
 
+const exampleUsernames = [
+  "trendy_summoner",
+  "lurkfather",
+  "memecleric",
+  "andre",
+  "voidprophet99",
+];
+
 export default function Home() {
   const [input, setInput] = useState("trendy_summoner");
   const [submittedUsername, setSubmittedUsername] = useState("trendy_summoner");
@@ -30,9 +38,9 @@ export default function Home() {
           </h1>
 
           <p className="mt-4 max-w-lg text-base leading-7 text-white/70">
-            This is the first interactive MVP. Enter a Reddit username and summon
-            a mock creature card before we connect real Reddit data and AI
-            generation.
+            This prototype now generates a deterministic creature for any username,
+            so we can validate the interaction and card system before adding real
+            Reddit data and AI generation.
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8 max-w-lg">
@@ -49,7 +57,7 @@ export default function Home() {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="e.g. lurkfather"
+                placeholder="e.g. andre"
                 className="h-12 flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 text-white outline-none transition focus:border-emerald-400/60 focus:bg-white/8"
               />
 
@@ -63,38 +71,27 @@ export default function Home() {
           </form>
 
           <div className="mt-5 flex flex-wrap gap-2 text-sm text-white/65">
-            <button
-              type="button"
-              onClick={() => {
-                setInput("trendy_summoner");
-                setSubmittedUsername("trendy_summoner");
-              }}
-              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 transition hover:bg-white/10"
-            >
-              trendy_summoner
-            </button>
+            {exampleUsernames.map((username) => {
+              const isActive = submittedUsername === username;
 
-            <button
-              type="button"
-              onClick={() => {
-                setInput("lurkfather");
-                setSubmittedUsername("lurkfather");
-              }}
-              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 transition hover:bg-white/10"
-            >
-              lurkfather
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setInput("memecleric");
-                setSubmittedUsername("memecleric");
-              }}
-              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 transition hover:bg-white/10"
-            >
-              memecleric
-            </button>
+              return (
+                <button
+                  key={username}
+                  type="button"
+                  onClick={() => {
+                    setInput(username);
+                    setSubmittedUsername(username);
+                  }}
+                  className={`rounded-full border px-4 py-2 transition ${
+                    isActive
+                      ? "border-white bg-white/10 text-white"
+                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                  }`}
+                >
+                  {username}
+                </button>
+              );
+            })}
           </div>
         </div>
 
