@@ -43,6 +43,7 @@ function ThreeDCard({
   trackOnWindow = false,
 }: ThreeDCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const lastPointerRef = useRef({ x: 0.5, y: 0.5, insideViewport: false });
 
   const [transform, setTransform] = useState({
     rotateX: 0,
@@ -54,9 +55,82 @@ function ThreeDCard({
     isHovered: false,
   });
 
+  const resetTransform = useCallback(() => {
+    setTransform({
+      rotateX: 0,
+      rotateY: 0,
+      glowX: 50,
+      glowY: 50,
+      shadowX: 0,
+      shadowY: 20,
+      isHovered: false,
+    });
+  }, []);
+
+  const applyTransform = useCallback(
+    ({
+      xPct,
+      yPct,
+      glowX,
+      glowY,
+      rotationScale,
+      isHovered,
+    }: {
+      xPct: number;
+      yPct: number;
+      glowX: number;
+      glowY: number;
+      rotationScale: number;
+      isHovered: boolean;
+    }) => {
+      const newRotateX = yPct * -1 * maxRotation * rotationScale;
+      const newRotateY = xPct * maxRotation * rotationScale;
+
+      setTransform({
+        rotateX: newRotateX,
+        rotateY: newRotateY,
+        glowX,
+        glowY,
+        shadowX: enableShadow ? newRotateY * 0.8 : 0,
+        shadowY: enableShadow ? 20 - newRotateX * 0.6 : 20,
+        isHovered,
+      });
+    },
+    [enableShadow, maxRotation]
+  );
+
+  const applyViewportTransform = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!cardRef.current) return;
+
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      const normalizedX = Math.min(1, Math.max(0, clientX / viewportWidth));
+      const normalizedY = Math.min(1, Math.max(0, clientY / viewportHeight));
+
+      const rect = cardRef.current.getBoundingClientRect();
+      const cardCenterX = rect.left + rect.width / 2;
+      const cardCenterY = rect.top + rect.height / 2;
+      const distanceToCard = Math.hypot(clientX - cardCenterX, clientY - cardCenterY);
+      const maxDistance = Math.hypot(viewportWidth, viewportHeight) * 0.6;
+      const proximity = 1 - Math.min(distanceToCard / maxDistance, 1);
+      const viewportRotationScale = 0.18 + proximity * 0.2;
+
+      applyTransform({
+        xPct: normalizedX - 0.5,
+        yPct: normalizedY - 0.5,
+        glowX: normalizedX * 100,
+        glowY: normalizedY * 100,
+        rotationScale: viewportRotationScale,
+        isHovered: false,
+      });
+    },
+    [applyTransform]
+  );
+
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (trackOnWindow) return;
       if (!cardRef.current) return;
 
       const rect = cardRef.current.getBoundingClientRect();
@@ -71,20 +145,16 @@ function ThreeDCard({
       const xPct = mouseX / width - 0.5;
       const yPct = mouseY / height - 0.5;
 
-      const newRotateX = yPct * -1 * maxRotation;
-      const newRotateY = xPct * maxRotation;
-
-      setTransform((prev) => ({
-        ...prev,
-        rotateX: newRotateX,
-        rotateY: newRotateY,
+      applyTransform({
+        xPct,
+        yPct,
         glowX: (mouseX / width) * 100,
         glowY: (mouseY / height) * 100,
-        shadowX: enableShadow ? newRotateY * 0.8 : 0,
-        shadowY: enableShadow ? 20 - newRotateX * 0.6 : 20,
-      }));
+        rotationScale: 1,
+        isHovered: true,
+      });
     },
-    [maxRotation, enableShadow, trackOnWindow]
+    [applyTransform]
   );
 
   const handleMouseEnter = useCallback(() => {
@@ -92,49 +162,48 @@ function ThreeDCard({
   }, []);
 
   const handleMouseLeave = useCallback(() => {
-    setTransform({
-      rotateX: 0,
-      rotateY: 0,
-      glowX: 50,
-      glowY: 50,
-      shadowX: 0,
-      shadowY: 20,
-      isHovered: false,
-    });
-  }, []);
+    if (!lastPointerRef.current.insideViewport) {
+      resetTransform();
+      return;
+    }
+
+    applyViewportTransform(
+      lastPointerRef.current.x * window.innerWidth,
+      lastPointerRef.current.y * window.innerHeight
+    );
+  }, [applyViewportTransform, resetTransform]);
 
   const handleWindowMouseMove = useCallback(
     (e: MouseEvent) => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      lastPointerRef.current = {
+        x: Math.min(1, Math.max(0, e.clientX / window.innerWidth)),
+        y: Math.min(1, Math.max(0, e.clientY / window.innerHeight)),
+        insideViewport: true,
+      };
 
-      const mouseX = Math.min(width, Math.max(0, e.clientX));
-      const mouseY = Math.min(height, Math.max(0, e.clientY));
+      if (transform.isHovered && !trackOnWindow) {
+        return;
+      }
 
-      const xPct = mouseX / width - 0.5;
-      const yPct = mouseY / height - 0.5;
-
-      const newRotateX = yPct * -1 * maxRotation;
-      const newRotateY = xPct * maxRotation;
-
-      setTransform((prev) => ({
-        ...prev,
-        rotateX: newRotateX,
-        rotateY: newRotateY,
-        glowX: (mouseX / width) * 100,
-        glowY: (mouseY / height) * 100,
-        shadowX: enableShadow ? newRotateY * 0.8 : 0,
-        shadowY: enableShadow ? 20 - newRotateX * 0.6 : 20,
-      }));
+      applyViewportTransform(e.clientX, e.clientY);
     },
-    [maxRotation, enableShadow]
+    [applyViewportTransform, trackOnWindow, transform.isHovered]
   );
 
+  const handleWindowMouseLeave = useCallback(() => {
+    lastPointerRef.current.insideViewport = false;
+    resetTransform();
+  }, [resetTransform]);
+
   useEffect(() => {
-    if (!trackOnWindow) return;
     window.addEventListener("mousemove", handleWindowMouseMove);
-    return () => window.removeEventListener("mousemove", handleWindowMouseMove);
-  }, [trackOnWindow, handleWindowMouseMove]);
+    window.addEventListener("mouseleave", handleWindowMouseLeave);
+
+    return () => {
+      window.removeEventListener("mousemove", handleWindowMouseMove);
+      window.removeEventListener("mouseleave", handleWindowMouseLeave);
+    };
+  }, [handleWindowMouseLeave, handleWindowMouseMove]);
 
   const cardStyle: CSSProperties = {
     transform: `perspective(1000px) rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg) scale3d(1, 1, 1)`,
