@@ -1,22 +1,22 @@
-import CreatureCard from "@/components/creature-card";
+"use client";
 
-const demoCreature = {
-  name: "Karma Wraith",
-  title: "Guardian of Endless Threads",
-  description:
-    "Born from midnight debates, cursed memes, and suspiciously detailed comment chains.",
-  rarity: "Epic" as const,
-  imageUrl:
-    "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1200&q=80",
-  username: "trendy_summoner",
-  stats: {
-    karma: "42.8k",
-    cakeDay: "2018",
-    alignment: "Chaotic Good",
-  },
-};
+import { useMemo, useState } from "react";
+import CreatureCard from "@/components/creature-card";
+import { getMockCreature } from "@/lib/mock-creatures";
 
 export default function Home() {
+  const [input, setInput] = useState("trendy_summoner");
+  const [submittedUsername, setSubmittedUsername] = useState("trendy_summoner");
+
+  const creature = useMemo(() => {
+    return getMockCreature(submittedUsername);
+  }, [submittedUsername]);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSubmittedUsername(input);
+  }
+
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#27272a_0%,_#09090b_45%,_#000_100%)] px-6 py-16 text-white">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-10 lg:flex-row lg:items-center lg:justify-between">
@@ -30,25 +30,75 @@ export default function Home() {
           </h1>
 
           <p className="mt-4 max-w-lg text-base leading-7 text-white/70">
-            This is the first MVP shell. For now, the card is hardcoded so we can
-            get the visuals and interaction feeling right before adding Reddit
-            fetching and AI generation.
+            This is the first interactive MVP. Enter a Reddit username and summon
+            a mock creature card before we connect real Reddit data and AI
+            generation.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3 text-sm text-white/65">
-            <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">
-              3D tilt card
-            </span>
-            <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">
-              fake creature data
-            </span>
-            <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">
-              no backend yet
-            </span>
+          <form onSubmit={handleSubmit} className="mt-8 max-w-lg">
+            <label
+              htmlFor="username"
+              className="mb-3 block text-xs font-semibold uppercase tracking-[0.24em] text-white/55"
+            >
+              Reddit username
+            </label>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <input
+                id="username"
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="e.g. lurkfather"
+                className="h-12 flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 text-white outline-none transition focus:border-emerald-400/60 focus:bg-white/8"
+              />
+
+              <button
+                type="submit"
+                className="h-12 rounded-2xl bg-emerald-400 px-5 font-semibold text-black transition hover:scale-[1.02] hover:bg-emerald-300"
+              >
+                Summon
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-5 flex flex-wrap gap-2 text-sm text-white/65">
+            <button
+              type="button"
+              onClick={() => {
+                setInput("trendy_summoner");
+                setSubmittedUsername("trendy_summoner");
+              }}
+              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 transition hover:bg-white/10"
+            >
+              trendy_summoner
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setInput("lurkfather");
+                setSubmittedUsername("lurkfather");
+              }}
+              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 transition hover:bg-white/10"
+            >
+              lurkfather
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setInput("memecleric");
+                setSubmittedUsername("memecleric");
+              }}
+              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 transition hover:bg-white/10"
+            >
+              memecleric
+            </button>
           </div>
         </div>
 
-        <CreatureCard {...demoCreature} />
+        <CreatureCard {...creature} />
       </div>
     </main>
   );
