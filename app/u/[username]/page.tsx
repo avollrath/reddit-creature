@@ -1,15 +1,57 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import CreatureCard from "@/components/creature-card";
 import ShareCreatureLink from "@/components/share-creature-link";
 import { resolveCreature } from "@/lib/creatures";
 import { normalizeUsername } from "@/lib/creatures/local-profile";
+import { getAbsoluteUrl } from "@/lib/site";
 
 type UserCreaturePageProps = {
   params: Promise<{
     username: string;
   }>;
 };
+
+export async function generateMetadata({
+  params,
+}: UserCreaturePageProps): Promise<Metadata> {
+  const { username } = await params;
+  const normalizedUsername = normalizeUsername(username);
+  const creature = resolveCreature({ username: normalizedUsername });
+  const canonicalPath = `/u/${normalizedUsername}`;
+  const canonicalUrl = getAbsoluteUrl(canonicalPath);
+  const previewImageUrl = getAbsoluteUrl(`${canonicalPath}/opengraph-image`);
+  const title = `${creature.name} | u/${normalizedUsername} | Reddit Creature`;
+  const description = `${creature.title}. ${creature.description} ${creature.rarity} ${creature.metadata.affinity} creature with ${creature.metadata.power} power.`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: "Reddit Creature",
+      type: "website",
+      images: [
+        {
+          url: previewImageUrl,
+          alt: `${creature.name} creature card for u/${normalizedUsername}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [previewImageUrl],
+    },
+  };
+}
 
 export default async function UserCreaturePage({
   params,
