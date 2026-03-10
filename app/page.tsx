@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import CreatureCard from "@/components/creature-card";
+import { useRouter } from "next/navigation";
 import EmptyCreatureState from "@/components/empty-creature-state";
 import ExampleUsernames from "@/components/example-usernames";
 import SummonForm from "@/components/summon-form";
-import { resolveCreature } from "@/lib/creatures";
+import { normalizeUsername } from "@/lib/creatures/local-profile";
 
 const exampleUsernames = [
   "trendy_summoner",
@@ -16,19 +16,18 @@ const exampleUsernames = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [input, setInput] = useState("");
-  const [submittedUsername, setSubmittedUsername] = useState<string | null>(null);
   const [isSummoning, setIsSummoning] = useState(false);
   const [feedback, setFeedback] = useState<{
     kind: "error" | "success";
     message: string;
   } | null>(null);
 
-  const creature = useMemo(() => {
-    return submittedUsername
-      ? resolveCreature({ username: submittedUsername })
-      : null;
-  }, [submittedUsername]);
+  const activeExample = useMemo(() => {
+    const normalized = input.trim() ? normalizeUsername(input) : null;
+    return exampleUsernames.includes(normalized ?? "") ? normalized : null;
+  }, [input]);
 
   useEffect(() => {
     if (!feedback) {
@@ -42,14 +41,10 @@ export default function Home() {
     return () => window.clearTimeout(timeoutId);
   }, [feedback]);
 
-  function normalizeUsername(value: string) {
-    return value.trim().replace(/^u\//i, "");
-  }
-
   function validateUsername(value: string) {
     const normalized = normalizeUsername(value);
 
-    if (!normalized) {
+    if (!value.trim() || normalized === "unknown_redditor") {
       return "Enter a Reddit username to summon a creature.";
     }
 
@@ -70,12 +65,8 @@ export default function Home() {
     setIsSummoning(true);
 
     window.setTimeout(() => {
-      setSubmittedUsername(username);
       setIsSummoning(false);
-      setFeedback({
-        kind: "success",
-        message: `Summoned u/${username}.`,
-      });
+      router.push(`/u/${username}`);
     }, 450);
   }
 
@@ -126,13 +117,13 @@ export default function Home() {
 
           <ExampleUsernames
             usernames={exampleUsernames}
-            activeUsername={submittedUsername}
+            activeUsername={activeExample}
             disabled={isSummoning}
             onSelect={summonUsername}
           />
         </div>
 
-        {creature ? <CreatureCard {...creature} /> : <EmptyCreatureState />}
+        <EmptyCreatureState />
       </div>
     </main>
   );
