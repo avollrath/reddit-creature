@@ -76,14 +76,14 @@ Optional but useful:
 ```env
 POLLINATIONS_API_KEY=your_key_here
 POLLINATIONS_TEXT_MODEL=gemini-fast
-REDDIT_PUBLIC_USER_AGENT=RedditCreatureMVP/0.1
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 Notes:
 - `POLLINATIONS_API_KEY` enables AI artwork and AI card-copy generation.
 - Without it, the app still works using local fallback artwork/text behavior.
-- Reddit grounding currently uses the public `about.json` endpoint and does not require auth.
+- Reddit grounding is fetched through the local `/api/reddit-user/[username]` route, which proxies Reddit public profile data server-side.
+- If Reddit is unavailable, the app falls back to deterministic local stats so the card still renders cleanly.
 
 ## Project Structure
 
@@ -113,7 +113,7 @@ This project is intentionally staged as an MVP:
 ## Roadmap
 
 Possible next steps:
-- replace public Reddit fetching with official OAuth-based Reddit access
+- improve Reddit OAuth coverage and richer profile/post grounding
 - improve art direction consistency and card rarity distinction
 - add richer Reddit-derived grounding from posts/comments
 - add stronger animation/reveal states and collectible systems

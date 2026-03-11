@@ -1,112 +1,127 @@
 import "server-only";
 
+import { getAbsoluteUrl } from "@/lib/site";
 import { normalizeUsername } from "@/lib/creatures/local-profile";
-import { transformRedditAboutResponse, toCreatureProfileSnapshot } from "@/lib/reddit/transform-about";
-import type { RedditAboutResponse, RedditAboutSnapshot } from "@/lib/reddit/types";
+import { toCreatureProfileSnapshot } from "@/lib/reddit/transform-about";
+import {
+  REDDIT_USER_ROUTE_SOURCE,
+  type RedditUserProfile,
+  type RedditUserProfileError,
+} from "@/lib/reddit/types";
 
-const REDDIT_TIMEOUT_MS = 5000;
-const REDDIT_USER_AGENT =
-  process.env.REDDIT_PUBLIC_USER_AGENT ||
-  "RedditCreature/0.1 (+https://reddit-trading-card.vercel.app)";
+const REDDIT_PROFILE_REVALIDATE_SECONDS = 1800;
 
-const REDDIT_ABOUT_ENDPOINTS = [
-  "https://www.reddit.com/user/{username}/about.json?raw_json=1",
-  "https://api.reddit.com/user/{username}/about?raw_json=1",
-] as const;
+function isRedditUserProfile(value: unknown): value is RedditUserProfile {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<RedditUserProfile>;
+
+  return (
+    typeof candidate.username === "string" &&
+    typeof candidate.totalKarma === "number" &&
+    typeof candidate.commentKarma === "number" &&
+    typeof candidate.linkKarma === "number" &&
+    (typeof candidate.createdUtc === "number" || candidate.createdUtc === null) &&
+    (typeof candidate.avatarUrl === "string" || candidate.avatarUrl === null) &&
+    (typeof candidate.subredditTitle === "string" ||
+      candidate.subredditTitle === null) &&
+    (typeof candidate.subredditDescription === "string" ||
+      candidate.subredditDescription === null) &&
+    (typeof candidate.subscribers === "number" || candidate.subscribers === null) &&
+    candidate.source === REDDIT_USER_ROUTE_SOURCE
+  );
+}
+
+function isRedditUserProfileError(value: unknown): value is RedditUserProfileError {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as Partial<RedditUserProfileError>;
+
+  return (
+    typeof candidate.error === "string" &&
+    candidate.source === REDDIT_USER_ROUTE_SOURCE
+  );
+}
 
 export async function fetchRedditAboutSnapshot(
   username: string
-): Promise<RedditAboutSnapshot | null> {
+): Promise<RedditUserProfile | null> {
   const normalizedUsername = normalizeUsername(username);
-  for (const endpointTemplate of REDDIT_ABOUT_ENDPOINTS) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), REDDIT_TIMEOUT_MS);
-    const url = endpointTemplate.replace("{username}", normalizedUsername);
 
-    try {
-      console.info("[reddit-about] Starting about.json fetch", {
-        username: normalizedUsername,
-        url,
-        timeoutMs: REDDIT_TIMEOUT_MS,
-      });
-
-      const response = await fetch(url, {
-        method: "GET",
-        signal: controller.signal,
-        cache: "no-store",
-        headers: {
-          "User-Agent": REDDIT_USER_AGENT,
-          Accept: "application/json",
-        },
-      });
-
-      console.info("[reddit-about] Reddit about.json response received", {
-        username: normalizedUsername,
-        url,
-        status: response.status,
-        statusText: response.statusText,
-        contentType: response.headers.get("content-type"),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.warn("[reddit-about] Fetch failed", {
-          username: normalizedUsername,
-          url,
-          status: response.status,
-          statusText: response.statusText,
-          bodyPreview: errorText.slice(0, 300),
-        });
-        continue;
-      }
-
-      const payload = (await response.json()) as RedditAboutResponse;
-      const snapshot = transformRedditAboutResponse(payload, normalizedUsername);
-
-      if (!snapshot) {
-        console.warn("[reddit-about] Invalid about.json payload", {
-          username: normalizedUsername,
-          url,
-        });
-        continue;
-      }
-
-      console.info("[reddit-about] Snapshot resolved", {
-        username: normalizedUsername,
-        url,
-        totalKarma: snapshot.totalKarma,
-        cakeDayMonth: snapshot.cakeDayMonth,
-        cakeDayYear: snapshot.cakeDayYear,
-        behaviorArchetype: snapshot.behaviorArchetype,
-        hasPremium: snapshot.hasPremium,
-        prefersNightmode: snapshot.prefersNightmode,
-      });
-
-      return snapshot;
-    } catch (error) {
-      console.warn("[reddit-about] Fetch errored", {
-        username: normalizedUsername,
-        url,
-        message: error instanceof Error ? error.message : String(error),
-      });
-    } finally {
-      clearTimeout(timeoutId);
-    }
+  if (normalizedUsername === "unknown_redditor") {
+    return null;
   }
 
-  return null;
+  const requestUrl = getAbsoluteUrl(
+    `/api/reddit-user/${encodeURIComponent(normalizedUsername)}`
+  );
+
+  try {
+    console.info("[reddit-about] Fetching local Reddit proxy", {
+      username: normalizedUsername,
+      requestUrl,
+    });
+
+    const response = await fetch(requestUrl, {
+      headers: {
+        Accept: "application/json",
+      },
+      next: {
+        revalidate: REDDIT_PROFILE_REVALIDATE_SECONDS,
+      },
+    });
+
+    const payload = (await response.json().catch(() => null)) as
+      | RedditUserProfile
+      | RedditUserProfileError
+      | null;
+
+    if (!response.ok) {
+      console.warn("[reddit-about] Local Reddit proxy failed", {
+        username: normalizedUsername,
+        requestUrl,
+        status: response.status,
+        statusText: response.statusText,
+        error:
+          payload && isRedditUserProfileError(payload)
+            ? payload.error
+            : "Unknown proxy failure.",
+      });
+      return null;
+    }
+
+    if (!payload || !isRedditUserProfile(payload)) {
+      console.warn("[reddit-about] Local Reddit proxy returned invalid payload", {
+        username: normalizedUsername,
+        requestUrl,
+      });
+      return null;
+    }
+
+    console.info("[reddit-about] Local Reddit proxy resolved", {
+      username: normalizedUsername,
+      totalKarma: payload.totalKarma,
+      createdUtc: payload.createdUtc,
+      source: payload.source,
+    });
+
+    return payload;
+  } catch (error) {
+    console.warn("[reddit-about] Local Reddit proxy errored", {
+      username: normalizedUsername,
+      requestUrl,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
 }
 
 export async function fetchRedditCreatureProfileSnapshot(username: string) {
   const normalizedUsername = normalizeUsername(username);
-  console.info("[reddit-about] Resolving creature profile snapshot", {
-    username: normalizedUsername,
-  });
-  const snapshot = await fetchRedditAboutSnapshot(username);
-  console.info("[reddit-about] Creature profile snapshot resolved", {
-    username: normalizedUsername,
-    found: Boolean(snapshot),
-    source: snapshot ? "reddit" : "fallback-local",
-  });
+  const snapshot = await fetchRedditAboutSnapshot(normalizedUsername);
   return snapshot ? toCreatureProfileSnapshot(snapshot) : null;
 }

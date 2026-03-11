@@ -22,6 +22,7 @@ type CreatureCardProps = {
     traitLabel: string;
   };
   grounding: {
+    source: "local" | "reddit";
     accountAgeYears: number | null;
   };
   stats: {

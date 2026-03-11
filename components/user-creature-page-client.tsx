@@ -54,6 +54,7 @@ export default function UserCreaturePageClient({
   const [isReady, setIsReady] = useState(false);
   const [resolvedImageUrl, setResolvedImageUrl] = useState(creature.imageUrl);
   const [statusIndex, setStatusIndex] = useState(0);
+  const isUsingFallbackProfile = creature.grounding.source === "local";
 
   const currentStatus = useMemo(
     () => loadingStatuses[statusIndex % loadingStatuses.length],
@@ -139,6 +140,13 @@ export default function UserCreaturePageClient({
           Your Reddit profile shapes the card&apos;s rarity, power, story, and vibe,
           so every reveal feels personal.
         </p>
+
+        {isUsingFallbackProfile ? (
+          <div className="mb-6 rounded-2xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-left text-sm leading-6 text-amber-100/86 sm:mb-8">
+            Reddit profile data was unavailable for this summon, so the card is
+            using graceful fallback stats and defaults.
+          </div>
+        ) : null}
 
         <div className="hidden lg:block">
           <ShareCreatureLink username={username} />

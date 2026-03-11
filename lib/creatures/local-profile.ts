@@ -1,7 +1,16 @@
 import type { RedditProfileSnapshot } from "@/lib/creatures/types";
 
 export function normalizeUsername(value: string): string {
-  return value.trim().toLowerCase().replace(/^u\//, "") || "unknown_redditor";
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\/(?:www\.)?reddit\.com\//, "")
+    .replace(/^\/+/, "")
+    .replace(/^(?:u|user)\//, "")
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "");
+
+  return normalized || "unknown_redditor";
 }
 
 export function createLocalProfileSnapshot(
@@ -9,7 +18,9 @@ export function createLocalProfileSnapshot(
 ): RedditProfileSnapshot {
   return {
     username: normalizeUsername(username),
-    displayName: username.trim().replace(/^u\//i, "") || normalizeUsername(username),
+    displayName:
+      username.trim().replace(/^\/?(?:u|user)\//i, "") ||
+      normalizeUsername(username),
     source: "local",
   };
 }
