@@ -24,12 +24,12 @@ export default function SummonForm({
         htmlFor="username"
         className="mb-3 block text-xs font-medium uppercase tracking-[0.24em] text-white/55"
       >
-        Choose your summoner
+        Enter a Reddit username
       </label>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <div
-          className={`flex h-12 flex-1 items-center rounded-2xl border bg-white/5 pl-4 transition focus-within:bg-white/8 ${
+          className={`flex h-14 w-full items-center rounded-2xl border bg-white/5 pl-4 transition focus-within:bg-white/8 sm:h-12 sm:flex-1 ${
             isError
               ? "border-rose-400/60 focus-within:border-rose-400/70"
               : "border-white/10 focus-within:border-emerald-400/60"
@@ -42,7 +42,7 @@ export default function SummonForm({
             name="reddit-creature-handle"
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            placeholder="andre"
+            placeholder="username"
             aria-invalid={isError}
             disabled={isSummoning}
             autoComplete="off"
@@ -57,9 +57,9 @@ export default function SummonForm({
         <button
           type="submit"
           disabled={isSummoning}
-          className="h-12 rounded-2xl bg-emerald-400 px-5 font-bold text-black transition disabled:cursor-wait disabled:bg-emerald-400/80 hover:scale-[1.02] hover:bg-emerald-300"
+          className="h-14 rounded-2xl bg-emerald-400 px-5 font-bold text-black transition disabled:cursor-wait disabled:bg-emerald-400/80 hover:scale-[1.02] hover:bg-emerald-300 sm:h-12"
         >
-          {isSummoning ? "Conjuring..." : "Reveal My Card"}
+          {isSummoning ? "Creating..." : "Create My Card"}
         </button>
       </div>
 
@@ -68,7 +68,7 @@ export default function SummonForm({
           isError ? "text-rose-200/85" : "text-white/60"
         }`}
       >
-        {feedback?.message ?? "Just type the username. We handle the u/ magic for you."}
+        {feedback?.message ?? "Just type the username. We add the u/ for you."}
       </p>
 
       <div

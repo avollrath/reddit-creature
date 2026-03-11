@@ -1,6 +1,6 @@
-# Reddit Creature
+# RTC - Reddit Trading Card
 
-Reddit Creature turns a Reddit username into a collectible fantasy creature card.
+RTC - Reddit Trading Card turns a Reddit username into a collectible fantasy creature card.
 
 It mixes:
 - real public Reddit profile data

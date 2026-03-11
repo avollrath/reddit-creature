@@ -22,11 +22,66 @@ const affinityMotifHints: Record<string, string> = {
   Wild: "feral organic forms, luminous growth, untamed bio-neon textures",
 };
 
+function getCreatureScaleHint(totalKarma: number | null, rarity: Creature["rarity"]) {
+  if (typeof totalKarma !== "number") {
+    return "Give the creature a medium physical scale and presence.";
+  }
+
+  if (totalKarma < 1_000 || rarity === "Common") {
+    return "Depict a small-scale creature: bug, beetle, moth, rodent, tiny reptile, mushroom-being, sprout-creature, or another small lifeform. Keep it modest in size, fragile-looking, and low-threat rather than majestic.";
+  }
+
+  if (totalKarma < 5_000) {
+    return "Depict a smaller creature with a clear but modest presence, like a clever critter, imp, nocturnal animal, little plant-beast, or compact relic familiar.";
+  }
+
+  if (totalKarma < 25_000 || rarity === "Rare") {
+    return "Depict a medium-sized creature with visible power, but not colossal or godlike.";
+  }
+
+  if (totalKarma < 100_000 || rarity === "Epic") {
+    return "Depict a large, striking, majestic creature with strong physical presence and obvious power.";
+  }
+
+  return "Depict a grand, majestic, imposing creature with legendary scale and commanding presence, like a mythic guardian or towering sovereign beast.";
+}
+
+function getCreatureAgeAppearanceHint(accountAgeYears: number | null) {
+  if (accountAgeYears === null) {
+    return "Keep the creature's apparent age balanced: neither very young nor truly ancient.";
+  }
+
+  if (accountAgeYears < 2) {
+    return "The creature should look very young: newly formed, juvenile, fresh, sprightly, and recently awakened.";
+  }
+
+  if (accountAgeYears < 5) {
+    return "The creature should look young and newly matured rather than ancient.";
+  }
+
+  if (accountAgeYears < 10) {
+    return "The creature should look fully matured, seasoned, and stable.";
+  }
+
+  if (accountAgeYears < 15) {
+    return "The creature should look old and experienced, with weathered, time-touched details.";
+  }
+
+  return "The creature should look very old and ancient, with elder presence, age-worn detail, and deep mythic longevity.";
+}
+
 export function buildCreatureArtworkPrompt(creature: Creature): string {
   const colorHint = rarityColorHints[creature.rarity];
   const affinityHint =
     affinityMotifHints[creature.metadata.affinity] ||
     "futuristic fantasy textures, strange energy motifs, collectible illustration detail";
+  const scaleHint = getCreatureScaleHint(
+    creature.grounding.totalKarma,
+    creature.rarity
+  );
+  const ageAppearanceHint = getCreatureAgeAppearanceHint(
+    creature.grounding.accountAgeYears
+  );
   const groundingHints = [
     creature.grounding.source === "reddit"
       ? "Ground the character in real Reddit-profile signals rather than pure random fantasy."
@@ -51,6 +106,9 @@ export function buildCreatureArtworkPrompt(creature: Creature): string {
     creature.grounding.accountAgeYears
       ? `Account age mood: ${creature.grounding.accountAgeYears} years old, so balance veteran myth with modern neon clarity.`
       : "Account age unavailable; keep the mythic age impression moderate.",
+    typeof creature.grounding.totalKarma === "number"
+      ? `Total karma grounding: ${creature.grounding.totalKarma}, so creature scale and grandeur should match that level.`
+      : "Total karma unavailable; keep creature scale moderate.",
   ].join(" ");
 
   return [
@@ -65,9 +123,11 @@ export function buildCreatureArtworkPrompt(creature: Creature): string {
     `COLOR DIRECTION: ${colorHint}.`,
     `MOTIF DIRECTION: ${affinityHint}.`,
     `STORY MOOD: ${creature.description}.`,
+    `CREATURE SCALE DIRECTION: ${scaleHint}`,
+    `CREATURE AGE DIRECTION: ${ageAppearanceHint}`,
     `GROUNDING HINTS: ${groundingHints}`,
 
-    `COMPOSITION: one single main creature only, centered, medium shot or three-quarter portrait, large in frame, filling most of the image, strong readable silhouette, clear focal subject, suitable for a trading card illustration slot.`,
+    `COMPOSITION: one single main creature only, centered, medium shot or three-quarter portrait, filling most of the image in a way that matches its intended scale, strong readable silhouette, clear focal subject, suitable for a trading card illustration slot.`,
 
     `LIGHTING: dramatic rim light, luminous glow, cinematic contrast, bright focal highlights, rich atmospheric depth, clean separation between subject and background.`,
 

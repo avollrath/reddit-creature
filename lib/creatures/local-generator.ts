@@ -430,6 +430,7 @@ export function generateCreatureFromProfile(
       source: profile.source ?? "local",
       behaviorArchetype: profile.behaviorArchetype ?? "balanced",
       accountAgeYears: profile.accountAgeYears ?? null,
+      totalKarma: profile.totalKarma ?? null,
       isVerified: Boolean(profile.isVerified || profile.hasVerifiedEmail),
       hasPremium: Boolean(profile.hasPremium),
       prefersNightmode: Boolean(profile.prefersNightmode),

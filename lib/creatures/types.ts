@@ -20,6 +20,7 @@ export type Creature = {
     source: "local" | "reddit";
     behaviorArchetype: BehaviorArchetype;
     accountAgeYears: number | null;
+    totalKarma: number | null;
     isVerified: boolean;
     hasPremium: boolean;
     prefersNightmode: boolean;

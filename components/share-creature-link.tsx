@@ -83,13 +83,13 @@ export default function ShareCreatureLink({
   }
 
   return (
-    <div className="mt-8 rounded-[24px] border border-white/10 bg-white/[0.04] p-4 backdrop-blur-sm">
-      <p className="text-[12px] font-medium uppercase tracking-[0.24em] text-white/48">
+    <div className="mt-5 rounded-[20px] border border-white/10 bg-white/[0.04] p-3 backdrop-blur-sm sm:mt-6 sm:rounded-[24px] sm:p-4">
+      <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/48 sm:text-[12px] sm:tracking-[0.24em]">
         Keep or share the summon
       </p>
 
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white/75">
+        <div className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-black/30 px-3 py-2.5 text-sm text-white/75 sm:px-4 sm:py-3">
           <p className="truncate">{sharePath}</p>
         </div>
 
@@ -97,7 +97,7 @@ export default function ShareCreatureLink({
           <button
             type="button"
             onClick={handleCopy}
-            className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-base font-semibold text-white transition hover:scale-[1.02] hover:bg-white/12"
+            className="rounded-2xl border border-white/10 bg-white/8 px-3.5 py-2.5 text-sm font-semibold text-white transition hover:scale-[1.02] hover:bg-white/12 sm:px-4 sm:py-3 sm:text-base"
           >
             Copy Link
           </button>
@@ -106,7 +106,7 @@ export default function ShareCreatureLink({
             type="button"
             onClick={handleDownload}
             disabled={isDownloading}
-            className="rounded-2xl border border-emerald-300/20 bg-emerald-400/90 px-4 py-3 text-base font-bold text-black transition disabled:cursor-wait disabled:bg-emerald-400/75 hover:scale-[1.02] hover:bg-emerald-300"
+            className="rounded-2xl border border-emerald-300/20 bg-emerald-400/90 px-3.5 py-2.5 text-sm font-bold text-black transition disabled:cursor-wait disabled:bg-emerald-400/75 hover:scale-[1.02] hover:bg-emerald-300 sm:px-4 sm:py-3 sm:text-base"
           >
             {isDownloading ? "Rendering..." : "Save PNG"}
           </button>
@@ -114,7 +114,7 @@ export default function ShareCreatureLink({
       </div>
 
       <p
-        className={`mt-3 min-h-5 text-sm ${
+        className={`mt-3 min-h-5 text-xs sm:text-sm ${
           feedback?.kind === "error" ? "text-rose-200/85" : "text-white/60"
         }`}
       >

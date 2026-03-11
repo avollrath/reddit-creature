@@ -6,16 +6,20 @@ type CreatureArtworkImageProps = {
   src: string;
   fallbackSrc: string;
   alt: string;
+  assumeLoaded?: boolean;
 };
 
 export default function CreatureArtworkImage({
   src,
   fallbackSrc,
   alt,
+  assumeLoaded = false,
 }: CreatureArtworkImageProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(assumeLoaded);
   const [currentSrc, setCurrentSrc] = useState(src);
-  const [statusText, setStatusText] = useState("Generating artwork...");
+  const [statusText, setStatusText] = useState(
+    assumeLoaded ? "Artwork ready." : "Generating artwork..."
+  );
   const fallbackTimeoutRef = useRef<number | null>(null);
 
   function clearFallbackTimeout() {
@@ -26,6 +30,11 @@ export default function CreatureArtworkImage({
   }
 
   useEffect(() => {
+    if (assumeLoaded) {
+      clearFallbackTimeout();
+      return;
+    }
+
     clearFallbackTimeout();
 
     fallbackTimeoutRef.current = window.setTimeout(() => {
@@ -43,7 +52,7 @@ export default function CreatureArtworkImage({
     return () => {
       clearFallbackTimeout();
     };
-  }, [fallbackSrc]);
+  }, [assumeLoaded, fallbackSrc, src]);
 
   function handleLoad() {
     clearFallbackTimeout();

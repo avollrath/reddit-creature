@@ -45,8 +45,9 @@ function getApiKey() {
 
 function buildPrompt(creature: Creature) {
   return [
-    `Preferred username display form: ${creature.displayName}`,
-    `Display name to weave into the title: ${creature.displayName}`,
+    `Preferred public profile label for the title and lore: ${creature.displayName}`,
+    `If a Reddit profile title/public label exists, use this label instead of the raw username: ${creature.displayName}`,
+    `Card title for tone reference only: ${creature.title}`,
     `Normalized username handle: ${creature.username}`,
     `Deterministic creature name: ${creature.name}`,
     `Deterministic role title: ${creature.title}`,
@@ -72,7 +73,7 @@ function createCacheKey(creature: Creature, prompt: string) {
   return createHash("sha256")
     .update(
       JSON.stringify({
-        version: 3,
+        version: 8,
         endpoint: "chat-completions+simple-text-fallback",
         username: creature.username,
         model: TEXT_MODEL,
@@ -251,20 +252,83 @@ function sanitizeLore(value: string, fallback: string, creature: Creature) {
   if (
     paragraphs.length !== 2 ||
     wordCount < 18 ||
-    wordCount > 40 ||
-    paragraphWordCounts.some((count) => count < 8 || count > 22)
+    wordCount > 42 ||
+    paragraphWordCounts.some((count) => count < 8 || count > 20)
   ) {
-    return fallback;
+    return ensureSingleLoreIdentityLabel(
+      normalizeLoreEntityCasing(fallback, creature),
+      creature
+    );
   }
 
-  const displayUsername = creature.displayName;
+  return ensureSingleLoreIdentityLabel(
+    normalizeLoreEntityCasing(sanitized, creature),
+    creature
+  );
+}
+
+function getPreferredLoreIdentityLabel(creature: Creature) {
+  return capitalizeTitle(creature.displayName);
+}
+
+function normalizeLoreEntityCasing(value: string, creature: Creature) {
+  const preferredIdentityLabel = getPreferredLoreIdentityLabel(creature);
+  const normalizedCreatureName = capitalizeTitle(creature.name);
+  const normalizedCreatureTitle = capitalizeTitle(creature.title);
   const escapedUsername = escapeForRegExp(creature.username);
   const escapedDisplayName = escapeForRegExp(creature.displayName);
+  const escapedCreatureName = escapeForRegExp(creature.name);
+  const escapedCreatureTitle = escapeForRegExp(creature.title);
 
-  return sanitized.replace(
-    new RegExp(`\\b(?:${escapedUsername}|${escapedDisplayName})\\b`, "gi"),
-    displayUsername
+  return value
+    .replace(
+      new RegExp(`\\b(?:${escapedUsername}|${escapedDisplayName})\\b`, "gi"),
+      preferredIdentityLabel
+    )
+    .replace(new RegExp(escapedCreatureName, "gi"), normalizedCreatureName)
+    .replace(new RegExp(escapedCreatureTitle, "gi"), normalizedCreatureTitle);
+}
+
+function ensureSingleLoreIdentityLabel(value: string, creature: Creature) {
+  const preferredIdentityLabel = getPreferredLoreIdentityLabel(creature);
+  const escapedUsername = escapeForRegExp(creature.username);
+  const escapedDisplayName = escapeForRegExp(creature.displayName);
+  const escapedCreatureTitle = escapeForRegExp(creature.title);
+  const escapedCreatureName = escapeForRegExp(creature.name);
+  const identityPattern = new RegExp(
+    `\\b(?:${escapedDisplayName}|${escapedUsername})('s)?\\b`,
+    "gi"
   );
+  const paragraphs = splitIntoParagraphs(value).slice(0, 2);
+
+  if (paragraphs.length !== 2) {
+    return value;
+  }
+
+  let seenIdentity = false;
+  const normalizedParagraphs = paragraphs.map((paragraph) =>
+    paragraph
+      .replace(new RegExp(escapedCreatureName, "gi"), preferredIdentityLabel)
+      .replace(new RegExp(escapedCreatureTitle, "gi"), "the creature")
+      .replace(identityPattern, (_match, possessive: string | undefined) => {
+        if (!seenIdentity) {
+          seenIdentity = true;
+          return possessive ? `${preferredIdentityLabel}'s` : preferredIdentityLabel;
+        }
+
+        return possessive ? "its" : "it";
+      })
+      .replace(/\s+,/g, ",")
+      .replace(/\s+\./g, ".")
+      .replace(/\s{2,}/g, " ")
+      .trim()
+  );
+
+  if (!seenIdentity) {
+    normalizedParagraphs[0] = `${preferredIdentityLabel} ${normalizedParagraphs[0].charAt(0).toLowerCase()}${normalizedParagraphs[0].slice(1)}`;
+  }
+
+  return normalizedParagraphs.join("\n\n");
 }
 
 function parseResponse(text: string, creature: Creature): CreatureCardCopy {
@@ -319,7 +383,7 @@ function extractTextFromChoice(choice: ChatCompletionChoice | undefined) {
 function getFallbackCopy(creature: Creature): CreatureCardCopy {
   return {
     name: capitalizeTitle(buildUsernameFallbackTitle(creature)),
-    lore: creature.description,
+    lore: normalizeLoreEntityCasing(creature.description, creature),
   };
 }
 
@@ -514,6 +578,8 @@ const systemPrompt = [
 "Make the title feel collectible, mysterious, and powerful.",
 "Prefer mythic phrasing over descriptive phrasing.",
 "Avoid awkward grammar or forced username placement.",
+"Do not simply reuse the deterministic role title word-for-word unless it is transformed into something more distinctive.",
+"Avoid overusing generic constructions like 'Sentinel of Cinder Threads' or other stock fantasy phrasing.",
 "Ground the tone in the profile signals you were given: karma, account age, commenter/poster balance, verification, premium, and night-mode preference should subtly influence the title and lore.",
 
 "Never include:",
@@ -521,11 +587,15 @@ const systemPrompt = [
 "Avoid generic fantasy filler like 'the chosen one' or 'ancient warrior'.",
 
 "LORE RULES:",
-"18–40 words total.",
+"30–50 words total.",
 "Two short paragraphs separated by a blank line.",
-"Each paragraph 8–22 words.",
+"Each paragraph 15–25 words.",
 "Atmospheric flavor text like a premium trading card.",
+"The lore must explicitly include the display name and the card title naturally within the two paragraphs.",
+"Use the profile grounding to make the lore specific: low karma should feel smaller or scrappier, higher karma should feel grander, older accounts should feel older, commenter/poster balance should affect the persona.",
 
+"FINAL LENGTH PRIORITY: keep total lore between 18 and 56 words.",
+"FINAL LENGTH PRIORITY: keep each paragraph between 8 and 28 words.",
 "Style:",
 "surreal",
 "bizarre",
@@ -575,6 +645,7 @@ const systemPrompt = [
   const fallback = getFallbackCopy(creature);
   const usedFallbackName = parsed.name === fallback.name;
   const usedFallbackLore = parsed.lore === fallback.lore;
+  const hasModelOutput = resolvedText.trim().length > 0;
 
   console.info("[card-copy] Pollinations text generation succeeded", {
     username: creature.username,
@@ -588,7 +659,7 @@ const systemPrompt = [
   return {
     copy: parsed,
     source:
-      usedFallbackName || usedFallbackLore ? "fallback" : "generated",
+      hasModelOutput && !usedFallbackLore ? "generated" : "fallback",
   } satisfies CreatureCardCopyResult;
 }
 

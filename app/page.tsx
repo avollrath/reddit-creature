@@ -75,20 +75,21 @@ export default function Home() {
       <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
         <div className="max-w-2xl">
           <p className="mb-3 text-sm font-medium uppercase tracking-[0.28em] text-emerald-300/80">
-            Reddit Creature
+            RTC - Reddit Trading Card
           </p>
 
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-            Summon a Reddit legend as a collectible creature card
+            Turn any Reddit profile into a collectible trading card
           </h1>
 
           <p className="mt-4 text-lg font-medium leading-8 text-white/72">
-            Type a Reddit handle and watch it transform into a strange, luminous,
-            share-ready card with rarity, lore, and creature art all its own.
+            Enter a Reddit username and we&apos;ll transform it into a one-of-a-kind
+            card with rarity, power, lore, and original creature art.
           </p>
 
           <p className="mt-4 text-sm font-normal leading-7 text-white/52">
-            Every summon feels like opening a fresh pull from a dark little internet booster pack.
+            It&apos;s a fun way to see a Reddit profile reimagined as something worth
+            sharing, saving, and showing off.
           </p>
 
           <SummonForm

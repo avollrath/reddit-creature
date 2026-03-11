@@ -14,11 +14,15 @@ type CreatureCardProps = {
   rarityAccent: string;
   imageUrl: string;
   fallbackImageUrl?: string;
+  artworkAssumeLoaded?: boolean;
   username: string;
   metadata: {
     power: number;
     affinity: string;
     traitLabel: string;
+  };
+  grounding: {
+    accountAgeYears: number | null;
   };
   stats: {
     karma: string;
@@ -269,34 +273,30 @@ function TopOverlayEffect({
 
   if (rarity === "Rare") {
     return (
-      <>
-        <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[26px] opacity-[0.065] mix-blend-screen">
-          <Plasma
-            color="#22d3ee"
-            speed={0.59}
-            direction="forward"
-            scale={1.1}
-            opacity={0.76}
-            mouseInteractive={true}
-          />
-        </div>
-      </>
+      <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[26px] opacity-[0.065] mix-blend-screen">
+        <Plasma
+          color="#22d3ee"
+          speed={0.59}
+          direction="forward"
+          scale={1.1}
+          opacity={0.76}
+          mouseInteractive={true}
+        />
+      </div>
     );
   }
 
   return (
-    <>
-      <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[26px] opacity-[0.04] mix-blend-screen">
-        <Plasma
-          color="#ffffff"
-          speed={0.37}
-          direction="forward"
-          scale={1.01}
-          opacity={0.45}
-          mouseInteractive={true}
-        />
-      </div>
-    </>
+    <div className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[26px] opacity-[0.04] mix-blend-screen">
+      <Plasma
+        color="#ffffff"
+        speed={0.37}
+        direction="forward"
+        scale={1.01}
+        opacity={0.45}
+        mouseInteractive={true}
+      />
+    </div>
   );
 }
 
@@ -348,217 +348,224 @@ export default function CreatureCard({
   rarityAccent,
   imageUrl,
   fallbackImageUrl,
+  artworkAssumeLoaded = false,
   username,
   metadata,
+  grounding,
   stats,
 }: CreatureCardProps) {
   const theme = rarityThemes[rarity];
   const cardNumber = `${username.slice(0, 3).toUpperCase()}-${metadata.power}`;
-  const sigilNumber = (metadata.power % 8) + 1;
+  const sigilNumber = Math.max(1, Math.round(grounding.accountAgeYears ?? 1));
 
   return (
-    <ThreeDCard
-      className="w-full max-w-[570px]"
-      innerId="creature-card"
-      maxRotation={18}
-      glowOpacity={0.26}
-      shadowBlur={48}
-      parallaxOffset={38}
-      transitionDuration="0.35s"
-      enableGlow
-      enableShadow
-      enableParallax
-      hoverPadding={0}
-    >
-      <Card className="relative aspect-[63/88] gap-0 overflow-visible rounded-none bg-transparent py-0 text-white shadow-none ring-0 [font-family:Arial,Helvetica,sans-serif]">
-        <RarityFxLayers rarity={rarity} />
-        <RarityParticles rarity={rarity} />
-        <div
-          className={`relative z-10 flex h-full flex-col overflow-hidden rounded-[26px] border ${theme.frame}`}
+    <div className="mx-auto h-[calc((570px*88/63)*var(--card-scale))] w-[calc(570px*var(--card-scale))] max-w-full [--card-scale:0.64] sm:[--card-scale:0.74] md:[--card-scale:0.86] lg:[--card-scale:1]">
+      <div className="origin-top-left [transform:scale(var(--card-scale))]">
+        <ThreeDCard
+          className="w-[570px]"
+          innerId="creature-card"
+          maxRotation={18}
+          glowOpacity={0.26}
+          shadowBlur={48}
+          parallaxOffset={38}
+          transitionDuration="0.35s"
+          enableGlow
+          enableShadow
+          enableParallax
+          hoverPadding={0}
         >
-          <div className={`pointer-events-none absolute inset-0 ${theme.inner}`} />
+          <Card className="relative aspect-[63/88] gap-0 overflow-visible rounded-none bg-transparent py-0 text-left text-white shadow-none ring-0 [font-family:Arial,Helvetica,sans-serif]">
+            <RarityFxLayers rarity={rarity} />
+            <RarityParticles rarity={rarity} />
+            <div
+              className={`relative z-10 flex h-full flex-col overflow-hidden rounded-[26px] border ${theme.frame}`}
+            >
+              <div className={`pointer-events-none absolute inset-0 ${theme.inner}`} />
 
-          <div className="relative flex h-full flex-col px-3 pb-1.5 pt-1.5">
-            <div className="relative px-1 pb-2">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`rounded-full border p-1.5 ${rarityStyles[rarity]}`}
-                    >
-                      <ClassIcon rarity={rarity} />
+              <div className="relative flex h-full flex-col px-3 pb-1.5 pt-1.5">
+                <div className="relative px-1 pb-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`rounded-full border p-1.5 ${rarityStyles[rarity]}`}
+                        >
+                          <ClassIcon rarity={rarity} />
+                        </div>
+
+                        <p className="text-[0.98rem] font-extrabold leading-[1.08] tracking-[-0.03em] text-white">
+                          {name}
+                        </p>
+                      </div>
+
+                      <div className="mt-2 flex items-center gap-2 text-[8.5px] uppercase tracking-[0.2em] text-white/52">
+                        <span className="truncate">u/{username}</span>
+                        <span className="text-white/25">•</span>
+                        <span>No. {cardNumber}</span>
+                      </div>
                     </div>
 
-                    <p className="text-[0.98rem] font-extrabold leading-[1.08] tracking-[-0.03em] text-white">
-                      {name}
-                    </p>
-                  </div>
-
-                  <div className="mt-2 flex items-center gap-2 text-[8.5px] uppercase tracking-[0.2em] text-white/52">
-                    <span className="truncate">u/{username}</span>
-                    <span className="text-white/25">•</span>
-                    <span>No. {cardNumber}</span>
+                    <div
+                      className={`mt-[5px] rounded-full border px-2 py-0.5 text-[8.5px] font-bold uppercase tracking-[0.22em] ${rarityStyles[rarity]}`}
+                    >
+                      {rarity}
+                    </div>
                   </div>
                 </div>
 
-                <div
-                  className={`rounded-full border px-2 py-0.5 text-[8.5px] font-bold uppercase tracking-[0.22em] ${rarityStyles[rarity]}`}
-                >
-                  {rarity}
-                </div>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div
-                className={`relative rounded-[16px] border p-[4px] ${theme.artFrame}`}
-              >
-                <div
-                  className={`pointer-events-none absolute inset-0 rounded-[16px] bg-gradient-to-b ${theme.glow}`}
-                />
-                  <div className="relative aspect-[1.42/1] overflow-hidden rounded-[12px] bg-black">
-                    <CreatureArtworkImage
-                      key={imageUrl}
-                      src={imageUrl}
-                      fallbackSrc={fallbackImageUrl ?? imageUrl}
-                      alt={name}
+                <div className="relative">
+                  <div
+                    className={`relative rounded-[16px] border p-[4px] ${theme.artFrame}`}
+                  >
+                    <div
+                      className={`pointer-events-none absolute inset-0 rounded-[16px] bg-gradient-to-b ${theme.glow}`}
                     />
+                    <div className="relative aspect-[1.42/1] overflow-hidden rounded-[12px] bg-black">
+                      <CreatureArtworkImage
+                        key={imageUrl}
+                        src={imageUrl}
+                        fallbackSrc={fallbackImageUrl ?? imageUrl}
+                        alt={name}
+                        assumeLoaded={artworkAssumeLoaded}
+                      />
 
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(255,255,255,0.14),transparent_28%)]" />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_24%,transparent_76%,rgba(0,0,0,0.32))]" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-black/6 to-black/10" />
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(255,255,255,0.14),transparent_28%)]" />
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_24%,transparent_76%,rgba(0,0,0,0.32))]" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-black/6 to-black/10" />
 
-                  <div className="absolute inset-x-0 bottom-0 p-3">
-                    <div className="rounded-[12px] bg-black/34 px-3 py-2 backdrop-blur-sm">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-[8.5px] font-semibold uppercase tracking-[0.24em] text-white/42">
-                          {metadata.traitLabel}
-                        </p>
-                        <div
-                          className={`rounded-full border px-2 py-0.5 text-[8.5px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
-                        >
-                          {metadata.affinity}
+                      <div className="absolute inset-x-0 bottom-0 p-3">
+                        <div className="rounded-[12px] bg-black/34 px-3 py-2 backdrop-blur-sm">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-[8.5px] font-semibold uppercase tracking-[0.24em] text-white/42">
+                              {metadata.traitLabel}
+                            </p>
+                            <div
+                              className={`rounded-full border px-2 py-0.5 text-[8.5px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
+                            >
+                              {metadata.affinity}
+                            </div>
+                          </div>
+                          <p className="mt-1.5 text-[1rem] font-bold leading-tight text-white">
+                            {title}
+                          </p>
                         </div>
                       </div>
-                      <p className="mt-1.5 text-[1rem] font-bold leading-tight text-white">
-                        {title}
-                      </p>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="relative pt-2">
-              <div className="flex flex-wrap gap-1.5">
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
-                >
-                  <TagIcon type="class" />
-                  {metadata.affinity}
-                </span>
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
-                >
-                  <TagIcon type="trait" />
-                  {metadata.traitLabel}
-                </span>
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
-                >
-                  <TagIcon type="relic" />
-                  {rarityAccent}
-                </span>
-              </div>
-            </div>
-
-            <div className="relative pt-2">
-              <div className={`rounded-[12px] border p-2 ${theme.panel}`}>
-                <div className="grid grid-cols-5 gap-1.5">
-                  {[
-                    ["Power", String(metadata.power), "power"],
-                    ["Class", metadata.affinity, "class"],
-                    ["Karma", stats.karma, "karma"],
-                    ["Cake", stats.cakeDay, "cake"],
-                    ["Align", stats.alignment, "alignment"],
-                  ].map(([label, value, icon]) => (
-                    <div
-                      key={label}
-                      className={`rounded-[9px] border px-1.5 py-2 ${theme.stat}`}
+                <div className="relative pt-2">
+                  <div className="flex flex-wrap gap-1.5">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
                     >
-                      <div className="flex items-center gap-1 text-[8px] uppercase tracking-[0.18em] text-white/44">
-                        <StatIcon
-                          type={
-                            icon as
-                              | "power"
-                              | "class"
-                              | "karma"
-                              | "cake"
-                              | "alignment"
-                          }
-                        />
-                        <span>{label}</span>
-                      </div>
+                      <TagIcon type="class" />
+                      {metadata.affinity}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
+                    >
+                      <TagIcon type="trait" />
+                      {metadata.traitLabel}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.2em] ${theme.tag}`}
+                    >
+                      <TagIcon type="relic" />
+                      {rarityAccent}
+                    </span>
+                  </div>
+                </div>
 
-                      <p className="mt-1.5 text-[10.5px] font-bold leading-tight text-white">
-                        {value}
-                      </p>
+                <div className="relative pt-2">
+                  <div className={`rounded-[12px] border p-2 ${theme.panel}`}>
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {[
+                        ["Power", String(metadata.power), "power"],
+                        ["Class", metadata.affinity, "class"],
+                        ["Karma", stats.karma, "karma"],
+                        ["Cake", stats.cakeDay, "cake"],
+                        ["Align", stats.alignment, "alignment"],
+                      ].map(([label, value, icon]) => (
+                        <div
+                          key={label}
+                          className={`rounded-[9px] border px-1.5 py-2 ${theme.stat}`}
+                        >
+                          <div className="flex items-center gap-1 text-[8px] uppercase tracking-[0.18em] text-white/44">
+                            <StatIcon
+                              type={
+                                icon as
+                                  | "power"
+                                  | "class"
+                                  | "karma"
+                                  | "cake"
+                                  | "alignment"
+                              }
+                            />
+                            <span>{label}</span>
+                          </div>
+
+                          <p className="mt-1.5 text-[10.5px] font-bold leading-tight text-white">
+                            {value}
+                          </p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                </div>
+
+                <div className="relative pt-2">
+                  <div className={`h-[150px] rounded-[12px] border px-3 py-3 ${theme.panel}`}>
+                    <div className="space-y-3 text-[13px] italic leading-6 text-white/84">
+                      {description.split(/\n\s*\n/).map((paragraph, index) => (
+                        <p key={`${index}-${paragraph.slice(0, 24)}`}>{paragraph}</p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative pt-2 text-center">
+                  <a
+                    href="https://www.vollrath.dev"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[11px] font-medium text-white/62 underline decoration-white/25 underline-offset-4 transition hover:text-white/88"
+                  >
+                    www.vollrath.dev
+                  </a>
+                </div>
+
+                <div className="relative mt-auto pt-2">
+                  <div className="rounded-[10px] bg-black/14 px-3 py-2">
+                    <div className="flex items-center justify-between gap-2 text-[8px] uppercase tracking-[0.2em] text-white/40">
+                      <span>Edition 01</span>
+                      <span>{cardNumber}</span>
+                      <span className={theme.accent}>{rarity}</span>
+                      <span>RTC</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pointer-events-none absolute bottom-[48px] right-[6px] z-30">
+                  <div className="relative flex h-[58px] w-[58px] items-center justify-center rounded-full border border-orange-300/48 bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.96)_44%,rgba(17,24,39,0.88)_62%,rgba(251,146,60,0.14)_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.12),inset_0_-12px_18px_rgba(0,0,0,0.78),0_8px_18px_rgba(0,0,0,0.34),0_0_16px_rgba(251,146,60,0.26)] backdrop-blur-md">
+                    <div className="pointer-events-none absolute inset-[2px] rounded-full border border-orange-200/34 bg-[conic-gradient(from_210deg,rgba(255,241,220,0.78),rgba(251,146,60,0.1),rgba(255,245,230,0.34),rgba(120,53,15,0.04),rgba(255,241,220,0.78))] opacity-95" />
+                    <div className="pointer-events-none absolute inset-[7px] rounded-full border border-black/46 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,0.08),rgba(255,255,255,0.01)_28%,rgba(0,0,0,0.24)_52%,rgba(0,0,0,0.88)_100%)]" />
+                    <div className="pointer-events-none absolute left-[13px] top-[9px] h-[10px] w-[24px] rounded-full bg-orange-100/22 blur-[4px]" />
+                    <div className="pointer-events-none absolute inset-x-[10px] top-[4px] h-[8px] rounded-full bg-white/18 blur-[3px]" />
+                    <span className="relative z-10 text-[1.45rem] font-black leading-none text-white [text-shadow:0_1px_0_rgba(255,255,255,0.18),0_4px_10px_rgba(0,0,0,0.65)]">
+                      {sigilNumber}
+                    </span>
+                  </div>
                 </div>
               </div>
+
+              <div className="pointer-events-none absolute inset-0 z-40 rounded-[26px] bg-[linear-gradient(120deg,rgba(255,255,255,0.085)_0%,rgba(255,255,255,0.016)_18%,rgba(255,255,255,0)_34%,rgba(255,255,255,0.038)_58%,rgba(255,255,255,0.013)_78%,rgba(255,255,255,0.05)_100%)] opacity-[0.12]" />
+
+              <TopOverlayEffect rarity={rarity} />
             </div>
-
-            <div className="relative pt-2">
-              <div className={`h-[140px] rounded-[12px] border px-3 py-3 ${theme.panel}`}>
-                <div className="space-y-3 text-[13px] italic leading-6 text-white/84">
-                  {description.split(/\n\s*\n/).map((paragraph, index) => (
-                    <p key={`${index}-${paragraph.slice(0, 24)}`}>{paragraph}</p>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="relative pt-2 text-center">
-              <a
-                href="https://www.vollrath.dev"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[11px] font-medium text-white/62 underline decoration-white/25 underline-offset-4 transition hover:text-white/88"
-              >
-                www.vollrath.dev
-              </a>
-            </div>
-
-            <div className="relative mt-auto pt-2">
-              <div className="rounded-[10px] bg-black/14 px-3 py-2">
-                <div className="flex items-center justify-between gap-2 text-[8px] uppercase tracking-[0.2em] text-white/40">
-                  <span>Edition 01</span>
-                  <span>{cardNumber}</span>
-                  <span className={theme.accent}>{rarity}</span>
-                  <span>Reddit Creature</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="pointer-events-none absolute bottom-[48px] right-[6px] z-30">
-              <div className="relative flex h-[58px] w-[58px] items-center justify-center rounded-full border border-orange-300/48 bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.98)_0%,rgba(0,0,0,0.96)_44%,rgba(17,24,39,0.88)_62%,rgba(251,146,60,0.14)_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.12),inset_0_-12px_18px_rgba(0,0,0,0.78),0_8px_18px_rgba(0,0,0,0.34),0_0_16px_rgba(251,146,60,0.26)] backdrop-blur-md">
-                <div className="pointer-events-none absolute inset-[2px] rounded-full border border-orange-200/34 bg-[conic-gradient(from_210deg,rgba(255,241,220,0.78),rgba(251,146,60,0.1),rgba(255,245,230,0.34),rgba(120,53,15,0.04),rgba(255,241,220,0.78))] opacity-95" />
-                <div className="pointer-events-none absolute inset-[7px] rounded-full border border-black/46 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,0.08),rgba(255,255,255,0.01)_28%,rgba(0,0,0,0.24)_52%,rgba(0,0,0,0.88)_100%)]" />
-                <div className="pointer-events-none absolute left-[13px] top-[9px] h-[10px] w-[24px] rounded-full bg-orange-100/22 blur-[4px]" />
-                <div className="pointer-events-none absolute inset-x-[10px] top-[4px] h-[8px] rounded-full bg-white/18 blur-[3px]" />
-                <span className="relative z-10 text-[1.45rem] font-black leading-none text-white [text-shadow:0_1px_0_rgba(255,255,255,0.18),0_4px_10px_rgba(0,0,0,0.65)]">
-                  {sigilNumber}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="pointer-events-none absolute inset-0 z-40 rounded-[26px] bg-[linear-gradient(120deg,rgba(255,255,255,0.085)_0%,rgba(255,255,255,0.016)_18%,rgba(255,255,255,0)_34%,rgba(255,255,255,0.038)_58%,rgba(255,255,255,0.013)_78%,rgba(255,255,255,0.05)_100%)] opacity-[0.12]" />
-
-          <TopOverlayEffect rarity={rarity} />
-        </div>
-      </Card>
-    </ThreeDCard>
+          </Card>
+        </ThreeDCard>
+      </div>
+    </div>
   );
 }

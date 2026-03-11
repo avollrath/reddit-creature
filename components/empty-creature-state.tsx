@@ -57,7 +57,7 @@ export default function EmptyCreatureState() {
         </CardContent>
 
         <CardFooter className="relative z-10 justify-between border-white/10 bg-black/20 text-xs text-white/55 backdrop-blur-sm">
-          <span>Reddit Creature</span>
+          <span>RTC - Reddit Trading Card</span>
           <span>Ready to summon</span>
         </CardFooter>
       </Card>
