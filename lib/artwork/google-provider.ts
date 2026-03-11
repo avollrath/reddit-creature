@@ -71,6 +71,8 @@ class GoogleCreatureArtworkProvider implements CreatureArtworkProvider {
         username: creature.username,
         model: this.model,
         apiKeyPresent: true,
+        promptLength: prompt.length,
+        timeoutMs: GENERATION_TIMEOUT_MS,
       });
 
       const response = await (

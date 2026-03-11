@@ -5,6 +5,7 @@ import CreatureArtworkImage from "@/components/creature-artwork-image";
 import Plasma from "@/components/plasma";
 import LiquidChrome from "@/components/liquid-chrome";
 import { Card } from "@/components/ui/card";
+import { CREATURE_ARTWORK_FALLBACK_URL } from "@/lib/artwork/fallback";
 
 type CreatureCardProps = {
   name: string;
@@ -13,7 +14,6 @@ type CreatureCardProps = {
   rarity: "Common" | "Rare" | "Epic" | "Legendary";
   rarityAccent: string;
   imageUrl: string;
-  fallbackImageUrl?: string;
   artworkAssumeLoaded?: boolean;
   username: string;
   metadata: {
@@ -347,7 +347,6 @@ export default function CreatureCard({
   rarity,
   rarityAccent,
   imageUrl,
-  fallbackImageUrl,
   artworkAssumeLoaded = false,
   username,
   metadata,
@@ -424,7 +423,7 @@ export default function CreatureCard({
                       <CreatureArtworkImage
                         key={imageUrl}
                         src={imageUrl}
-                        fallbackSrc={fallbackImageUrl ?? imageUrl}
+                        fallbackSrc={CREATURE_ARTWORK_FALLBACK_URL}
                         alt={name}
                         assumeLoaded={artworkAssumeLoaded}
                       />

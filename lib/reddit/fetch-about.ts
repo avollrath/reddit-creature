@@ -18,6 +18,12 @@ export async function fetchRedditAboutSnapshot(
   const url = `https://www.reddit.com/user/${normalizedUsername}/about.json`;
 
   try {
+    console.info("[reddit-about] Starting about.json fetch", {
+      username: normalizedUsername,
+      url,
+      timeoutMs: REDDIT_TIMEOUT_MS,
+    });
+
     const response = await fetch(url, {
       method: "GET",
       signal: controller.signal,
@@ -26,6 +32,13 @@ export async function fetchRedditAboutSnapshot(
         "User-Agent": REDDIT_USER_AGENT,
         Accept: "application/json",
       },
+    });
+
+    console.info("[reddit-about] Reddit about.json response received", {
+      username: normalizedUsername,
+      status: response.status,
+      statusText: response.statusText,
+      contentType: response.headers.get("content-type"),
     });
 
     if (!response.ok) {
@@ -68,6 +81,15 @@ export async function fetchRedditAboutSnapshot(
 }
 
 export async function fetchRedditCreatureProfileSnapshot(username: string) {
+  const normalizedUsername = normalizeUsername(username);
+  console.info("[reddit-about] Resolving creature profile snapshot", {
+    username: normalizedUsername,
+  });
   const snapshot = await fetchRedditAboutSnapshot(username);
+  console.info("[reddit-about] Creature profile snapshot resolved", {
+    username: normalizedUsername,
+    found: Boolean(snapshot),
+    source: snapshot ? "reddit" : "fallback-local",
+  });
   return snapshot ? toCreatureProfileSnapshot(snapshot) : null;
 }

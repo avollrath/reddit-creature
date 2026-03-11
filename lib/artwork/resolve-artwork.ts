@@ -13,12 +13,10 @@ import type { CreatureArtworkResult } from "@/lib/artwork/types";
 const inFlightArtwork = new Map<string, Promise<CreatureArtworkResult>>();
 
 function getFallbackResult(
-  creature: Creature,
   reason: "missing_api_key" | "generation_failed" | "timeout"
 ): CreatureArtworkResult {
   return {
     kind: "fallback",
-    fallbackUrl: creature.imageUrl,
     reason,
   };
 }
@@ -33,9 +31,21 @@ export async function resolveCreatureArtwork(
     model: pollinationsCreatureArtworkProvider.model,
   });
 
+  console.info("[artwork-resolver] Resolving artwork", {
+    username: creature.username,
+    model: pollinationsCreatureArtworkProvider.model,
+    cacheKey,
+  });
+
   const cachedArtwork = await readArtworkFromCache(cacheKey);
 
   if (cachedArtwork) {
+    console.info("[artwork-resolver] Cache hit", {
+      username: creature.username,
+      model: pollinationsCreatureArtworkProvider.model,
+      cacheKey,
+      byteLength: cachedArtwork.byteLength,
+    });
     return {
       kind: "generated",
         artwork: {
@@ -46,8 +56,19 @@ export async function resolveCreatureArtwork(
       };
   }
 
+  console.info("[artwork-resolver] Cache miss", {
+    username: creature.username,
+    model: pollinationsCreatureArtworkProvider.model,
+    cacheKey,
+  });
+
   if (!pollinationsCreatureArtworkProvider.isConfigured()) {
-    return getFallbackResult(creature, "missing_api_key");
+    console.warn("[artwork-resolver] Provider not configured, using fallback", {
+      username: creature.username,
+      model: pollinationsCreatureArtworkProvider.model,
+      cacheKey,
+    });
+    return getFallbackResult("missing_api_key");
   }
 
   const existingRequest = inFlightArtwork.get(cacheKey);
@@ -57,30 +78,52 @@ export async function resolveCreatureArtwork(
   }
 
   const request = (async () => {
-    const artwork = await pollinationsCreatureArtworkProvider.generate(
-      creature,
-      prompt
-    );
-
-    if (!artwork.ok) {
-      console.warn("[artwork-resolver] Provider generation failed", {
-        username: creature.username,
-        model: pollinationsCreatureArtworkProvider.model,
-        reason: artwork.error.reason,
-        message: artwork.error.message,
-      });
-      return getFallbackResult(
+    try {
+      const artwork = await pollinationsCreatureArtworkProvider.generate(
         creature,
-        artwork.error.reason === "timeout" ? "timeout" : artwork.error.reason === "missing_api_key" ? "missing_api_key" : "generation_failed"
+        prompt
       );
+
+      if (!artwork.ok) {
+        console.warn("[artwork-resolver] Provider generation failed", {
+          username: creature.username,
+          model: pollinationsCreatureArtworkProvider.model,
+          reason: artwork.error.reason,
+          message: artwork.error.message,
+        });
+        return getFallbackResult(
+          artwork.error.reason === "timeout"
+            ? "timeout"
+            : artwork.error.reason === "missing_api_key"
+              ? "missing_api_key"
+              : "generation_failed"
+        );
+      }
+
+      try {
+        await writeArtworkToCache(cacheKey, artwork.artwork.bytes);
+      } catch (error) {
+        console.warn("[artwork-resolver] Failed to write cache entry", {
+          username: creature.username,
+          cacheKey,
+          model: pollinationsCreatureArtworkProvider.model,
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+
+      return {
+        kind: "generated",
+        artwork: artwork.artwork,
+      } satisfies CreatureArtworkResult;
+    } catch (error) {
+      console.error("[artwork-resolver] Unexpected resolver failure", {
+        username: creature.username,
+        cacheKey,
+        model: pollinationsCreatureArtworkProvider.model,
+        message: error instanceof Error ? error.message : String(error),
+      });
+      return getFallbackResult("generation_failed");
     }
-
-    await writeArtworkToCache(cacheKey, artwork.artwork.bytes);
-
-    return {
-      kind: "generated",
-      artwork: artwork.artwork,
-    } satisfies CreatureArtworkResult;
   })().finally(() => {
     inFlightArtwork.delete(cacheKey);
   });

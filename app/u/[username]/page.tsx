@@ -70,7 +70,6 @@ export default async function UserCreaturePage({
     name: cardCopy.name,
     description: cardCopy.lore,
     imageUrl: `/u/${normalizedUsername}/artwork`,
-    fallbackImageUrl: creature.imageUrl,
   };
 
   return (

@@ -32,7 +32,6 @@ export type CreatureArtworkResult =
     }
   | {
       kind: "fallback";
-      fallbackUrl: string;
       reason: "missing_api_key" | "generation_failed" | "timeout";
     };
 

@@ -66,6 +66,10 @@ class PollinationsCreatureArtworkProvider implements CreatureArtworkProvider {
         username: creature.username,
         model: this.model,
         apiKeyPresent: true,
+        promptLength: prompt.length,
+        endpoint: POLLINATIONS_BASE_URL,
+        outputWidth: OUTPUT_WIDTH,
+        outputHeight: OUTPUT_HEIGHT,
       });
 
       const response = await fetch(requestUrl, {
@@ -99,6 +103,8 @@ class PollinationsCreatureArtworkProvider implements CreatureArtworkProvider {
       console.info("[artwork-provider] Pollinations response received", {
         username: creature.username,
         model: this.model,
+        status: response.status,
+        contentType: response.headers.get("content-type"),
         byteLength: bytes.byteLength,
       });
 

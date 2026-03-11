@@ -668,6 +668,12 @@ export async function resolveCreatureCardCopy(
 ): Promise<CreatureCardCopy> {
   const prompt = buildPrompt(creature);
   const cacheKey = createCacheKey(creature, prompt);
+  console.info("[card-copy] Resolving card copy", {
+    username: creature.username,
+    model: TEXT_MODEL,
+    cacheKey,
+    promptLength: prompt.length,
+  });
   const cachedCopy = await readFromCache(cacheKey);
 
   if (cachedCopy) {

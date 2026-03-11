@@ -26,10 +26,27 @@ export function resolveCreature({
 
 export async function resolveCreatureFromUsername(username: string): Promise<Creature> {
   const normalizedUsername = normalizeUsername(username);
+  console.info("[creature] Resolving creature from username", {
+    username: normalizedUsername,
+  });
   const redditProfile = await fetchRedditCreatureProfileSnapshot(normalizedUsername);
+  console.info("[creature] Profile resolution completed", {
+    username: normalizedUsername,
+    profileSource: redditProfile?.source ?? "local",
+    hasRedditProfile: Boolean(redditProfile),
+  });
 
-  return resolveCreature({
+  const creature = resolveCreature({
     username: normalizedUsername,
     profile: redditProfile,
   });
+
+  console.info("[creature] Creature resolved", {
+    username: normalizedUsername,
+    rarity: creature.rarity,
+    affinity: creature.metadata.affinity,
+    imageUrl: creature.imageUrl,
+  });
+
+  return creature;
 }

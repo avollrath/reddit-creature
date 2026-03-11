@@ -86,24 +86,12 @@ export default function UserCreaturePageClient({
         setResolvedImageUrl(loadedSrc);
         setIsReady(true);
       } catch {
-        try {
-          const fallbackSrc = creature.fallbackImageUrl ?? creature.imageUrl;
-          const loadedFallback = await preloadImage(fallbackSrc);
-
-          if (cancelled) {
-            return;
-          }
-
-          setResolvedImageUrl(loadedFallback);
-          setIsReady(true);
-        } catch {
-          if (cancelled) {
-            return;
-          }
-
-          setResolvedImageUrl(creature.fallbackImageUrl ?? creature.imageUrl);
-          setIsReady(true);
+        if (cancelled) {
+          return;
         }
+
+        setResolvedImageUrl(creature.imageUrl);
+        setIsReady(true);
       }
     }
 
@@ -112,7 +100,7 @@ export default function UserCreaturePageClient({
     return () => {
       cancelled = true;
     };
-  }, [creature.fallbackImageUrl, creature.imageUrl]);
+  }, [creature.imageUrl]);
 
   if (!isReady) {
     return (
@@ -161,7 +149,6 @@ export default function UserCreaturePageClient({
         <CreatureCard
           {...creature}
           imageUrl={resolvedImageUrl}
-          fallbackImageUrl={resolvedImageUrl}
           artworkAssumeLoaded
         />
 
