@@ -73,7 +73,7 @@ function createCacheKey(creature: Creature, prompt: string) {
   return createHash("sha256")
     .update(
       JSON.stringify({
-        version: 8,
+        version: 9,
         endpoint: "chat-completions+simple-text-fallback",
         username: creature.username,
         model: TEXT_MODEL,
@@ -252,8 +252,8 @@ function sanitizeLore(value: string, fallback: string, creature: Creature) {
   if (
     paragraphs.length !== 2 ||
     wordCount < 18 ||
-    wordCount > 42 ||
-    paragraphWordCounts.some((count) => count < 8 || count > 20)
+    wordCount > 56 ||
+    paragraphWordCounts.some((count) => count < 8 || count > 28)
   ) {
     return ensureSingleLoreIdentityLabel(
       normalizeLoreEntityCasing(fallback, creature),

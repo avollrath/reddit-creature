@@ -6,6 +6,7 @@
 
 html {
   background: #000;
+  font-family: "Bricolage Grotesque", sans-serif;
 }
 
 body {
@@ -13,7 +14,25 @@ body {
   background: #000;
   color: white;
   margin: 0;
-  font-family: var(--font-bricolage), sans-serif;
+  font-family: "Bricolage Grotesque", sans-serif;
+}
+
+button,
+input,
+textarea,
+select,
+a,
+label,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+span,
+div {
+  font-family: inherit;
 }
 
 * {
