@@ -59,7 +59,11 @@ export async function GET(request: Request, { params }: ArtworkRouteProps) {
     bytes: artwork.artwork.bytes.length,
   });
 
-  return new Response(artwork.artwork.bytes, {
+  const body = new Blob([artwork.artwork.bytes], {
+    type: artwork.artwork.mimeType,
+  });
+
+  return new Response(body, {
     headers: {
       "Content-Type": artwork.artwork.mimeType,
       "Cache-Control": "private, no-store, max-age=0",
