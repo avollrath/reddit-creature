@@ -58,10 +58,8 @@ export async function GET(request: Request, { params }: ArtworkRouteProps) {
     mimeType: artwork.artwork.mimeType,
     bytes: artwork.artwork.bytes.length,
   });
-
-  const body = new Blob([artwork.artwork.bytes], {
-    type: artwork.artwork.mimeType,
-  });
+  const body = new ArrayBuffer(artwork.artwork.bytes.byteLength);
+  new Uint8Array(body).set(artwork.artwork.bytes);
 
   return new Response(body, {
     headers: {
