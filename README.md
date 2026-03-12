@@ -1,5 +1,7 @@
 # CTC - Chess.com Trading Card
 
+![Magnus Carlsen chess player card](public/magnuscarlsen-chess-player-card.jpg)
+
 CTC turns a Chess.com player into a collectible fantasy card using Chess.com public data, derived playstyle stats, AI-generated naming/lore/artwork, and polished animated presentation.
 
 ## What It Does
