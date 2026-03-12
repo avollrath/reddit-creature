@@ -1,96 +1,104 @@
+"use client";
+
+import { useMemo } from "react";
+import CreatureCard from "@/components/creature-card";
+import { generateCreatureFromProfile } from "@/lib/creatures/local-generator";
+import { createLocalProfileSnapshot } from "@/lib/creatures/local-profile";
+
 type ExampleCardStackProps = {
   activeUsername: string;
   disabled: boolean;
   onSelect: (username: string) => void;
 };
 
-const exampleCards = [
-  {
-    username: "hikaru",
-    rarity: "Grandmaster",
-    title: "Clockfire Sovereign",
-    accent: "Bullet",
-    palette:
-      "border-yellow-200/25 bg-[linear-gradient(180deg,rgba(250,204,21,0.22),rgba(120,53,15,0.42),rgba(9,9,11,0.98))]",
-    glow: "from-yellow-200/35 via-amber-300/12 to-transparent",
-  },
-  {
-    username: "magnuscarlsen",
-    rarity: "Mythic",
-    title: "Ivory Worldshaper",
-    accent: "Rapid",
-    palette:
-      "border-violet-200/22 bg-[linear-gradient(180deg,rgba(139,92,246,0.24),rgba(49,46,129,0.4),rgba(9,9,11,0.98))]",
-    glow: "from-violet-200/30 via-indigo-300/10 to-transparent",
-  },
-  {
-    username: "fabianocaruana",
-    rarity: "Legendary",
-    title: "Endgame Regent",
-    accent: "Classical",
-    palette:
-      "border-sky-200/22 bg-[linear-gradient(180deg,rgba(56,189,248,0.22),rgba(8,47,73,0.42),rgba(9,9,11,0.98))]",
-    glow: "from-sky-200/30 via-cyan-300/10 to-transparent",
-  },
-] as const;
+const hikaruLore =
+  "The Hikaru Nakamura Tempest enters the fray as a predatory force, a Blitz Grandmaster who relentlessly hunts initiative. His movements are a storm of calculated aggression, never yielding ground once seized. Hikaru Nakamura fights with the discipline and presence expected from a tactical berserker.";
 
 export default function ExampleCardStack({
   activeUsername,
   disabled,
   onSelect,
 }: ExampleCardStackProps) {
+  const hikaruCreature = useMemo(() => {
+    const profile = {
+      ...createLocalProfileSnapshot("hikaru"),
+      source: "chesscom" as const,
+      lookupState: "ok" as const,
+      lookupMessage: null,
+      limitedData: false,
+      warnings: [],
+      displayName: "Hikaru Nakamura",
+      title: "GM",
+      followers: 285200,
+      joined: 1_284_681_600,
+      lastOnline: 1_742_478_400,
+      status: "premium",
+      rapidRating: 2839,
+      rapidBest: 2900,
+      rapidWins: 154,
+      rapidLosses: 35,
+      rapidDraws: 22,
+      blitzRating: 3321,
+      blitzBest: 3400,
+      blitzWins: 1820,
+      blitzLosses: 511,
+      blitzDraws: 96,
+      bulletRating: 3299,
+      bulletBest: 3360,
+      bulletWins: 2740,
+      bulletLosses: 910,
+      bulletDraws: 110,
+      dailyRating: 1960,
+      dailyBest: 2010,
+      dailyWins: 9,
+      dailyLosses: 4,
+      dailyDraws: 2,
+      puzzleBest: 3590,
+      tacticsBest: 3590,
+    };
+
+    const creature = generateCreatureFromProfile(profile);
+
+    return {
+      ...creature,
+      name: "Hikaru Nakamura, Blitz Gm",
+      title: "Blitz Grandmaster",
+      description: hikaruLore,
+      imageUrl: "/creatures/hikaru.png",
+    };
+  }, []);
+
+  const isActive = activeUsername.trim().toLowerCase() === "hikaru";
+
   return (
-    <div className="mt-8 flex flex-col items-center">
-      <div className="relative flex h-[168px] w-[310px] items-end justify-center sm:h-[184px] sm:w-[420px]">
-        {exampleCards.map((card, index) => {
-          const isActive = activeUsername.trim().toLowerCase() === card.username;
-          const offsetClass =
-            index === 0
-              ? "left-0 top-5 rotate-[-8deg] sm:left-5"
-              : index === 1
-                ? "left-1/2 top-0 z-20 -translate-x-1/2"
-                : "right-0 top-5 rotate-[8deg] sm:right-5";
+    <div className="mb-8 flex flex-col items-center">
+      <div
+        role="button"
+        tabIndex={disabled ? -1 : 0}
+        onClick={() => onSelect("hikaru")}
+        onKeyDown={(event) => {
+          if (disabled) {
+            return;
+          }
 
-          return (
-            <button
-              key={card.username}
-              type="button"
-              disabled={disabled}
-              onClick={() => onSelect(card.username)}
-              className={`absolute h-[144px] w-[108px] overflow-hidden rounded-[18px] border p-2 text-left shadow-[0_20px_60px_rgba(0,0,0,0.45)] transition duration-300 hover:-translate-y-1 hover:scale-[1.03] sm:h-[160px] sm:w-[120px] ${offsetClass} ${card.palette} ${
-                isActive ? "ring-2 ring-emerald-300/70" : ""
-              } ${disabled ? "cursor-not-allowed opacity-70" : ""}`}
-              aria-label={`Use ${card.username} as the example username`}
-            >
-              <div className={`pointer-events-none absolute inset-0 bg-gradient-to-b ${card.glow}`} />
-              <div className="relative flex h-full flex-col rounded-[14px] border border-white/10 bg-black/28 p-2 backdrop-blur-sm">
-                <div className="flex items-center justify-between text-[7px] font-semibold uppercase tracking-[0.22em] text-white/68">
-                  <span>{card.rarity}</span>
-                  <span>♟️</span>
-                </div>
-
-                <div className="mt-2 flex-1 rounded-[12px] border border-white/10 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.14),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.08),rgba(0,0,0,0.2))]" />
-
-                <div className="mt-2">
-                  <p className="truncate text-[9px] font-black uppercase tracking-[0.18em] text-white">
-                    @{card.username}
-                  </p>
-                  <p className="mt-1 line-clamp-2 text-[9px] font-medium leading-3.5 text-white/82">
-                    {card.title}
-                  </p>
-                  <div className="mt-2 inline-flex rounded-full border border-white/12 bg-white/8 px-1.5 py-1 text-[7px] font-semibold uppercase tracking-[0.18em] text-white/75">
-                    {card.accent}
-                  </div>
-                </div>
-              </div>
-            </button>
-          );
-        })}
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onSelect("hikaru");
+          }
+        }}
+        className={`rounded-[28px] transition ${
+          isActive ? "ring-2 ring-emerald-300/70 ring-offset-0" : ""
+        } ${disabled ? "cursor-not-allowed opacity-70" : "hover:-translate-y-1"}`}
+        aria-label="Use hikaru as the example username"
+      >
+        <div className="flex h-[239px] w-[171px] items-start justify-center overflow-visible">
+          <CreatureCard
+            {...hikaruCreature}
+            artworkAssumeLoaded
+            fixedScale={0.3}
+          />
+        </div>
       </div>
-
-      <p className="mt-4 text-sm text-white/48">
-        Tap a card to try an example player.
-      </p>
     </div>
   );
 }

@@ -97,9 +97,18 @@ export default function ShareCreatureLink({
     setIsDownloading(true);
 
     try {
+      const exportPadding = 40;
       const dataUrl = await toPng(cardNode, {
         cacheBust: true,
         pixelRatio: 2,
+        backgroundColor: "transparent",
+        skipFonts: true,
+        width: cardNode.offsetWidth + exportPadding * 2,
+        height: cardNode.offsetHeight + exportPadding * 2,
+        style: {
+          transform: `translate(${exportPadding}px, ${exportPadding}px)`,
+          transformOrigin: "top left",
+        },
       });
       const link = document.createElement("a");
       link.href = dataUrl;

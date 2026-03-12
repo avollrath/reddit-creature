@@ -10,6 +10,7 @@ import { CREATURE_ARTWORK_FALLBACK_URL } from "@/lib/artwork/fallback";
 
 type CreatureCardProps = Creature & {
   artworkAssumeLoaded?: boolean;
+  fixedScale?: number;
 };
 
 const rarityStyles: Record<CreatureRarity, string> = {
@@ -382,6 +383,7 @@ export default function CreatureCard({
   metadata,
   grounding,
   stats,
+  fixedScale,
 }: CreatureCardProps) {
   const theme = rarityThemes[rarity];
   const cardNumber = `${username.slice(0, 3).toUpperCase()}-${stats[0]?.value ?? 0}${stats[5]?.value ?? 0}`;
@@ -394,7 +396,18 @@ export default function CreatureCard({
       : "Quiet circle";
 
   return (
-    <div className="mx-auto h-[calc((570px*88/63)*var(--card-scale))] w-[calc(570px*var(--card-scale))] max-w-full [--card-scale:0.64] sm:[--card-scale:0.74] md:[--card-scale:0.86] lg:[--card-scale:1]">
+    <div
+      className={`mx-auto h-[calc((570px*88/63)*var(--card-scale))] w-[calc(570px*var(--card-scale))] max-w-full ${
+        fixedScale === undefined
+          ? "[--card-scale:0.64] sm:[--card-scale:0.74] md:[--card-scale:0.86] lg:[--card-scale:1]"
+          : ""
+      }`}
+      style={
+        fixedScale === undefined
+          ? undefined
+          : ({ ["--card-scale" as string]: fixedScale } as React.CSSProperties)
+      }
+    >
       <div className="origin-top-left [transform:scale(var(--card-scale))]">
         <ThreeDCard
           className="w-[570px]"
@@ -555,7 +568,7 @@ export default function CreatureCard({
                       <span>Edition 01</span>
                       <span>{cardNumber}</span>
                       <span className={theme.accent}>{rarity}</span>
-                      <span>CCG</span>
+                      <span>CTC</span>
                     </div>
                   </div>
                 </div>

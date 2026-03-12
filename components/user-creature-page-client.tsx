@@ -143,7 +143,7 @@ export default function UserCreaturePageClient({
       <div className="w-full lg:max-w-none lg:flex-[1.9] xl:flex-[2.1]">
         <p className="mt-2 inline-flex items-center gap-2 text-sm font-medium uppercase tracking-[0.22em] text-emerald-300/80 sm:mt-3 sm:text-base sm:tracking-[0.28em]">
           <CrownIcon />
-          CCG - Chess.com Player Card
+          CTC - Chess.com Trading Card
         </p>
 
         <h1 className="mt-2 text-xl font-extrabold leading-[0.96] tracking-tight sm:mt-3 sm:text-2xl xl:text-3xl">

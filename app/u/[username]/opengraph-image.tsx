@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { resolveCreatureFromUsername } from "@/lib/creatures";
 import { normalizeUsername } from "@/lib/creatures/local-profile";
 
-export const alt = "CCG - Chess.com Player Card social preview";
+export const alt = "CTC - Chess.com Trading Card social preview";
 export const size = {
   width: 1200,
   height: 630,
@@ -102,7 +102,7 @@ export default async function OgImage({ params }: OgImageProps) {
                   color: "rgba(167,243,208,0.9)",
                 }}
               >
-                <span>CCG - Chess.com Player Card</span>
+                <span>CTC - Chess.com Trading Card</span>
                 <span style={{ color: "rgba(255,255,255,0.35)" }}>Live Data</span>
               </div>
 

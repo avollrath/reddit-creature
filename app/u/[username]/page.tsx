@@ -22,7 +22,7 @@ export async function generateMetadata({
   const canonicalPath = `/u/${normalizedUsername}`;
   const canonicalUrl = getAbsoluteUrl(canonicalPath);
   const previewImageUrl = getAbsoluteUrl(`${canonicalPath}/opengraph-image`);
-  const title = `${cardCopy.name} | @${normalizedUsername} | CCG - Chess.com Player Card`;
+  const title = `${cardCopy.name} | @${normalizedUsername} | CTC - Chess.com Trading Card`;
   const description = `${cardCopy.title}. ${creature.rarity} ${creature.metadata.affinity} card with ${creature.metadata.power} power and ${creature.metadata.strongestModeLabel.toLowerCase()} specialization.`;
 
   return {
@@ -35,7 +35,7 @@ export async function generateMetadata({
       title,
       description,
       url: canonicalUrl,
-      siteName: "CCG - Chess.com Player Card",
+      siteName: "CTC - Chess.com Trading Card",
       type: "website",
       images: [
         {

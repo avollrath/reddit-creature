@@ -48,7 +48,7 @@ export default function EmptyCreatureState() {
         </CardContent>
 
         <CardFooter className="relative z-10 justify-between border-white/10 bg-black/20 text-xs text-white/55 backdrop-blur-sm">
-          <span>CCG - Chess.com Player Card</span>
+          <span>CTC - Chess.com Trading Card</span>
           <span>Ready to forge</span>
         </CardFooter>
       </Card>

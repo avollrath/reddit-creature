@@ -93,9 +93,15 @@ export default function Home() {
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#27272a_0%,_#09090b_45%,_#000_100%)] px-6 py-16 text-white">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-12 text-center">
         <div className="max-w-2xl">
+          <ExampleCardStack
+            activeUsername={input}
+            disabled={isSummoning}
+            onSelect={setInput}
+          />
+
           <p className="mb-3 inline-flex items-center gap-2 text-sm font-medium uppercase tracking-[0.28em] text-emerald-300/80">
             <CrownIcon />
-            CCG - Chess.com Player Card
+            CTC - Chess.com Trading Card
           </p>
 
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
@@ -117,12 +123,6 @@ export default function Home() {
             onSubmit={handleSubmit}
             isSummoning={isSummoning}
             feedback={feedback}
-          />
-
-          <ExampleCardStack
-            activeUsername={input}
-            disabled={isSummoning}
-            onSelect={setInput}
           />
         </div>
       </div>

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CCG - Chess.com Player Card",
+  title: "CTC - Chess.com Trading Card",
   description:
     "Turn any Chess.com player into a collectible fantasy card with live profile data, derived playstyle stats, lore, and premium artwork.",
 };
@@ -24,6 +25,7 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning className="antialiased">
         {children}
+        <Analytics />
       </body>
     </html>
   );
