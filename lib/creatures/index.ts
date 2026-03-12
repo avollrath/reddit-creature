@@ -1,2 +1,8 @@
 export { resolveCreature, resolveCreatureFromUsername } from "@/lib/creatures/resolve-creature";
-export type { Creature, CreatureRarity, RedditProfileSnapshot } from "@/lib/creatures/types";
+export type {
+  ChessMode,
+  Creature,
+  CreatureRarity,
+  CreatureStatIcon,
+  PlayerProfileSnapshot,
+} from "@/lib/creatures/types";

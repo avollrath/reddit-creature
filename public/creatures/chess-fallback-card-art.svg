@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Chess fantasy fallback portrait</title>
+  <desc id="desc">A chess-inspired fantasy champion standing over a glowing board.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="55%" stop-color="#1d1635"/>
+      <stop offset="100%" stop-color="#050608"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#fde68a" stop-opacity="0.9"/>
+      <stop offset="35%" stop-color="#8b5cf6" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="armor" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff6bf"/>
+      <stop offset="35%" stop-color="#d4af37"/>
+      <stop offset="100%" stop-color="#5b3a0f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <rect width="1200" height="900" fill="url(#halo)"/>
+  <g opacity="0.24" stroke="#8b5cf6" stroke-width="3">
+    <path d="M100 150h1000"/>
+    <path d="M100 300h1000"/>
+    <path d="M100 450h1000"/>
+    <path d="M100 600h1000"/>
+    <path d="M100 750h1000"/>
+    <path d="M180 80v740"/>
+    <path d="M340 80v740"/>
+    <path d="M500 80v740"/>
+    <path d="M660 80v740"/>
+    <path d="M820 80v740"/>
+    <path d="M980 80v740"/>
+  </g>
+  <g transform="translate(600 480)">
+    <circle r="185" fill="#0b0b12" opacity="0.72"/>
+    <path d="M-60 -200h120l30 40v62h-36v86h46v56h-34l48 232h-228l48-232h-34v-56h46v-86h-36v-62z" fill="url(#armor)" stroke="#fff4bf" stroke-width="8"/>
+    <path d="M-108 276h216" stroke="#fff6d8" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+    <circle cy="-58" r="54" fill="#0f172a" stroke="#fde68a" stroke-width="8"/>
+    <path d="M-46 -262h92l-18 42h-56z" fill="#fde68a"/>
+    <path d="M-26 -318h52l20 42h-92z" fill="#fff2a8"/>
+    <path d="M-14 -360h28v42h-28z" fill="#fef08a"/>
+    <g fill="#8b5cf6" opacity="0.55">
+      <circle cx="-180" cy="-120" r="16"/>
+      <circle cx="192" cy="-82" r="12"/>
+      <circle cx="-210" cy="54" r="10"/>
+      <circle cx="220" cy="88" r="14"/>
+    </g>
+  </g>
+</svg>

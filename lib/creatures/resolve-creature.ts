@@ -3,12 +3,12 @@ import {
   createLocalProfileSnapshot,
   normalizeUsername,
 } from "@/lib/creatures/local-profile";
-import type { Creature, RedditProfileSnapshot } from "@/lib/creatures/types";
-import { fetchRedditCreatureProfileSnapshot } from "@/lib/reddit";
+import type { Creature, PlayerProfileSnapshot } from "@/lib/creatures/types";
+import { fetchChessPlayerSnapshot } from "@/lib/chesscom";
 
 type ResolveCreatureInput = {
   username: string;
-  profile?: RedditProfileSnapshot | null;
+  profile?: PlayerProfileSnapshot | null;
 };
 
 export function resolveCreature({
@@ -26,26 +26,19 @@ export function resolveCreature({
 
 export async function resolveCreatureFromUsername(username: string): Promise<Creature> {
   const normalizedUsername = normalizeUsername(username);
-  console.info("[creature] Resolving creature from username", {
-    username: normalizedUsername,
-  });
-  const redditProfile = await fetchRedditCreatureProfileSnapshot(normalizedUsername);
-  console.info("[creature] Profile resolution completed", {
-    username: normalizedUsername,
-    profileSource: redditProfile?.source ?? "local",
-    hasRedditProfile: Boolean(redditProfile),
-  });
+  const lookup = await fetchChessPlayerSnapshot(normalizedUsername);
+  const profile =
+    lookup.profile ??
+    {
+      ...createLocalProfileSnapshot(normalizedUsername),
+      lookupState: lookup.status,
+      lookupMessage: lookup.message,
+      warnings: lookup.message ? [lookup.message] : [],
+    };
 
   const creature = resolveCreature({
     username: normalizedUsername,
-    profile: redditProfile,
-  });
-
-  console.info("[creature] Creature resolved", {
-    username: normalizedUsername,
-    rarity: creature.rarity,
-    affinity: creature.metadata.affinity,
-    imageUrl: creature.imageUrl,
+    profile,
   });
 
   return creature;

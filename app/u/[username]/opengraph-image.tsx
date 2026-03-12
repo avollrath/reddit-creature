@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { resolveCreatureFromUsername } from "@/lib/creatures";
 import { normalizeUsername } from "@/lib/creatures/local-profile";
 
-export const alt = "RTC - Reddit Trading Card social preview";
+export const alt = "CCG - Chess.com Player Card social preview";
 export const size = {
   width: 1200,
   height: 630,
@@ -10,22 +10,12 @@ export const size = {
 export const contentType = "image/png";
 
 const rarityStyles = {
-  Common: {
-    accent: "#d4d4d8",
-    glow: "rgba(255,255,255,0.12)",
-  },
-  Rare: {
-    accent: "#7dd3fc",
-    glow: "rgba(34,211,238,0.18)",
-  },
-  Epic: {
-    accent: "#f0abfc",
-    glow: "rgba(217,70,239,0.18)",
-  },
-  Legendary: {
-    accent: "#fbbf24",
-    glow: "rgba(251,191,36,0.22)",
-  },
+  Common: { accent: "#d4d4d8", glow: "rgba(255,255,255,0.12)" },
+  Rare: { accent: "#7dd3fc", glow: "rgba(34,211,238,0.18)" },
+  Epic: { accent: "#f0abfc", glow: "rgba(217,70,239,0.18)" },
+  Legendary: { accent: "#fbbf24", glow: "rgba(251,191,36,0.22)" },
+  Mythic: { accent: "#c4b5fd", glow: "rgba(139,92,246,0.22)" },
+  Grandmaster: { accent: "#fef08a", glow: "rgba(254,240,138,0.24)" },
 } as const;
 
 type OgImageProps = {
@@ -100,12 +90,7 @@ export default async function OgImage({ params }: OgImageProps) {
               paddingRight: 24,
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
+            <div style={{ display: "flex", flexDirection: "column" }}>
               <div
                 style={{
                   display: "flex",
@@ -117,8 +102,8 @@ export default async function OgImage({ params }: OgImageProps) {
                   color: "rgba(167,243,208,0.9)",
                 }}
               >
-                <span>RTC - Reddit Trading Card</span>
-                <span style={{ color: "rgba(255,255,255,0.35)" }}>Prototype</span>
+                <span>CCG - Chess.com Player Card</span>
+                <span style={{ color: "rgba(255,255,255,0.35)" }}>Live Data</span>
               </div>
 
               <div
@@ -129,7 +114,7 @@ export default async function OgImage({ params }: OgImageProps) {
                   color: "rgba(255,255,255,0.72)",
                 }}
               >
-                u/{normalizedUsername}
+                @{normalizedUsername}
               </div>
 
               <div
@@ -173,17 +158,11 @@ export default async function OgImage({ params }: OgImageProps) {
               </div>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                gap: 12,
-                flexWrap: "wrap",
-              }}
-            >
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
               {[
                 creature.rarity,
                 creature.metadata.affinity,
-                creature.rarityAccent,
+                creature.metadata.strongestModeLabel,
                 `${creature.metadata.power} power`,
               ].map((label, index) => (
                 <div
@@ -257,13 +236,7 @@ export default async function OgImage({ params }: OgImageProps) {
                     "radial-gradient(circle at top, rgba(255,255,255,0.12), transparent 38%), linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.45))",
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 12,
-                  }}
-                >
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
                   <div
                     style={{
                       display: "flex",
@@ -275,7 +248,7 @@ export default async function OgImage({ params }: OgImageProps) {
                       color: "rgba(255,255,255,0.74)",
                     }}
                   >
-                    u/{creature.username}
+                    @{creature.username}
                   </div>
 
                   <div
@@ -331,16 +304,11 @@ export default async function OgImage({ params }: OgImageProps) {
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 12,
-                  }}
-                >
+                <div style={{ display: "flex", gap: 12 }}>
                   {[
                     ["Power", String(creature.metadata.power)],
-                    ["Class", creature.metadata.affinity],
-                    ["Alignment", creature.stats.alignment],
+                    ["Mode", creature.metadata.strongestModeLabel],
+                    ["Signature", creature.details.record],
                   ].map(([label, value]) => (
                     <div
                       key={label}

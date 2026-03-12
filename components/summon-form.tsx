@@ -19,30 +19,33 @@ export default function SummonForm({
   const isError = feedback?.kind === "error";
 
   return (
-    <form onSubmit={onSubmit} className="mt-8 max-w-lg">
+    <form
+      onSubmit={onSubmit}
+      className="mx-auto mt-8 flex w-full max-w-2xl flex-col items-center"
+    >
       <label
         htmlFor="username"
-        className="mb-3 block text-xs font-medium uppercase tracking-[0.24em] text-white/55"
+        className="mb-3 block text-center text-xs font-medium uppercase tracking-[0.24em] text-white/55"
       >
-        Enter a Reddit username
+        Enter a Chess.com username
       </label>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center sm:items-stretch">
         <div
-          className={`flex h-14 w-full items-center rounded-2xl border bg-white/5 pl-4 transition focus-within:bg-white/8 sm:h-12 sm:flex-1 ${
+          className={`flex h-14 w-full max-w-md items-center rounded-2xl border bg-white/5 pl-4 transition focus-within:bg-white/8 sm:h-12 sm:w-[380px] sm:max-w-none ${
             isError
               ? "border-rose-400/60 focus-within:border-rose-400/70"
               : "border-white/10 focus-within:border-emerald-400/60"
           } ${isSummoning ? "cursor-not-allowed opacity-70" : ""}`}
         >
-          <span className="mr-1.5 text-white/45">u/</span>
+          <span className="mr-1.5 text-white/45">@</span>
           <input
             id="username"
             type="search"
-            name="reddit-creature-handle"
+            name="chess-player-handle"
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            placeholder="username"
+            placeholder="hikaru"
             aria-invalid={isError}
             disabled={isSummoning}
             autoComplete="off"
@@ -57,22 +60,26 @@ export default function SummonForm({
         <button
           type="submit"
           disabled={isSummoning}
-          className="h-14 rounded-2xl bg-emerald-400 px-5 font-bold text-black transition disabled:cursor-wait disabled:bg-emerald-400/80 hover:scale-[1.02] hover:bg-emerald-300 sm:h-12"
+          className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-5 font-bold text-black transition disabled:cursor-wait disabled:bg-emerald-400/80 hover:scale-[1.02] hover:bg-emerald-300 sm:h-12"
         >
-          {isSummoning ? "Creating..." : "Create My Card"}
+          <span aria-hidden="true" className="text-base leading-none">
+            
+          </span>
+          {isSummoning ? "Creating..." : "Create Card"}
         </button>
       </div>
 
       <p
         className={`mt-3 min-h-5 text-sm ${
           isError ? "text-rose-200/85" : "text-white/60"
-        }`}
+        } text-center`}
       >
-        {feedback?.message ?? "Just type the username. We add the u/ for you."}
+        {feedback?.message ??
+          "You can paste a username, @handle, or Chess.com profile link."}
       </p>
 
       <div
-        className={`mt-3 h-1.5 overflow-hidden rounded-full bg-white/8 transition-opacity ${
+        className={`mt-3 h-1.5 w-full max-w-md overflow-hidden rounded-full bg-white/8 transition-opacity sm:w-[380px] sm:max-w-none ${
           isSummoning ? "opacity-100" : "opacity-0"
         }`}
         aria-hidden={!isSummoning}

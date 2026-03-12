@@ -28,7 +28,7 @@ export default function ExampleUsernames({
                 : "border-white/10 bg-white/5 hover:bg-white/10"
             } ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
           >
-            {username}
+            @{username}
           </button>
         );
       })}

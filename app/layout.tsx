@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "RTC - Reddit Trading Card",
+  title: "CCG - Chess.com Player Card",
   description:
-    "Turn any Reddit profile into a collectible fantasy creature card with grounded stats, lore, and creature art.",
+    "Turn any Chess.com player into a collectible fantasy card with live profile data, derived playstyle stats, lore, and premium artwork.",
 };
 
 export default function RootLayout({

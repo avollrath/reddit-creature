@@ -2,8 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ExampleCardStack from "@/components/example-card-stack";
 import SummonForm from "@/components/summon-form";
 import { normalizeUsername } from "@/lib/creatures/local-profile";
+
+function CrownIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className="h-3.5 w-3.5"
+      aria-hidden="true"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 18h14M7 15h10l1-8-4 2-2-4-2 4-4-2 1 8Z" />
+    </svg>
+  );
+}
 
 export default function Home() {
   const router = useRouter();
@@ -29,16 +47,16 @@ export default function Home() {
   function validateUsername(value: string) {
     const normalized = normalizeUsername(value);
 
-    if (!value.trim() || normalized === "unknown_redditor") {
-      return "Drop in a Reddit handle and let the summoning begin.";
+    if (!value.trim() || normalized === "unknown-player") {
+      return "Enter a Chess.com username to create a card.";
     }
 
-    if (normalized.length < 3 || normalized.length > 20) {
-      return "That handle feels off. Reddit usernames should be 3 to 20 characters.";
+    if (normalized.length < 2 || normalized.length > 25) {
+      return "That username looks invalid. Chess.com usernames are usually 2 to 25 characters.";
     }
 
-    if (!/^[a-zA-Z0-9_]+$/.test(normalized)) {
-      return "Use letters, numbers, and underscores only.";
+    if (!/^[a-zA-Z0-9_-]+$/.test(normalized)) {
+      return "Use letters, numbers, underscores, or hyphens only.";
     }
 
     return null;
@@ -53,6 +71,7 @@ export default function Home() {
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
     if (isSummoning) {
       return;
     }
@@ -72,24 +91,24 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#27272a_0%,_#09090b_45%,_#000_100%)] px-6 py-16 text-white">
-      <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+      <div className="mx-auto flex max-w-5xl flex-col items-center gap-12 text-center">
         <div className="max-w-2xl">
-          <p className="mb-3 text-sm font-medium uppercase tracking-[0.28em] text-emerald-300/80">
-            RTC - Reddit Trading Card
+          <p className="mb-3 inline-flex items-center gap-2 text-sm font-medium uppercase tracking-[0.28em] text-emerald-300/80">
+            <CrownIcon />
+            CCG - Chess.com Player Card
           </p>
 
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-            Turn any Reddit profile into a collectible trading card
+            Turn any Chess.com player into a trading card 
           </h1>
 
           <p className="mt-4 text-lg font-medium leading-8 text-white/72">
-            Enter a Reddit username and we&apos;ll transform it into a one-of-a-kind
-            card with rarity, power, lore, and original creature art.
+            Enter a Chess.com username to generate a card with player stats, rarity,
+            story text, and fantasy artwork.
           </p>
 
           <p className="mt-4 text-sm font-normal leading-7 text-white/52">
-            It&apos;s a fun way to see a Reddit profile reimagined as something worth
-            sharing, saving, and showing off.
+            Ratings, title, followers, account age, and play style all shape the final result. ✨
           </p>
 
           <SummonForm
@@ -98,6 +117,12 @@ export default function Home() {
             onSubmit={handleSubmit}
             isSummoning={isSummoning}
             feedback={feedback}
+          />
+
+          <ExampleCardStack
+            activeUsername={input}
+            disabled={isSummoning}
+            onSelect={setInput}
           />
         </div>
       </div>

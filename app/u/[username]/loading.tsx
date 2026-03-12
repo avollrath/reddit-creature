@@ -7,7 +7,7 @@ export default function UserCreatureLoading() {
         </div>
 
         <p className="mt-4 text-xs font-medium uppercase tracking-[0.28em] text-emerald-300/80">
-          Calling the creature out of the feed
+          Consulting the royal archive
         </p>
       </div>
     </main>

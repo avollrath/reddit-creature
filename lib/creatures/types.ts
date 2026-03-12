@@ -1,6 +1,29 @@
-export type CreatureRarity = "Common" | "Rare" | "Epic" | "Legendary";
+export type CreatureRarity =
+  | "Common"
+  | "Rare"
+  | "Epic"
+  | "Legendary"
+  | "Mythic"
+  | "Grandmaster";
 
-export type BehaviorArchetype = "commenter" | "poster" | "balanced";
+export type LookupState = "ok" | "not_found" | "unavailable";
+
+export type ChessMode = "rapid" | "blitz" | "bullet" | "daily" | "puzzles";
+
+export type CreatureStatIcon =
+  | "power"
+  | "speed"
+  | "tactics"
+  | "precision"
+  | "endurance"
+  | "prestige";
+
+export type CreatureStat = {
+  label: string;
+  value: number;
+  display: string;
+  icon: CreatureStatIcon;
+};
 
 export type Creature = {
   name: string;
@@ -15,42 +38,73 @@ export type Creature = {
     power: number;
     affinity: string;
     traitLabel: string;
+    titleBadge: string;
+    strongestModeLabel: string;
   };
   grounding: {
-    source: "local" | "reddit";
-    behaviorArchetype: BehaviorArchetype;
+    source: "local" | "chesscom";
+    lookupState: LookupState;
+    lookupMessage: string | null;
+    warnings: string[];
+    limitedData: boolean;
     accountAgeYears: number | null;
-    totalKarma: number | null;
-    isVerified: boolean;
-    hasPremium: boolean;
-    prefersNightmode: boolean;
-    over18: boolean;
-    isModeratorLike: boolean;
+    followers: number | null;
+    title: string | null;
+    status: string | null;
+    countryCode: string | null;
+    isStreamer: boolean;
+    strongestMode: ChessMode;
+    rapidRating: number | null;
+    blitzRating: number | null;
+    bulletRating: number | null;
+    dailyRating: number | null;
+    puzzleBest: number | null;
+    tacticsBest: number | null;
   };
-  stats: {
-    karma: string;
-    cakeDay: string;
-    alignment: string;
+  stats: CreatureStat[];
+  details: {
+    memberSince: string;
+    signature: string;
+    record: string;
   };
 };
 
-export type RedditProfileSnapshot = {
+export type PlayerProfileSnapshot = {
   username: string;
-  displayName?: string | null;
-  source?: "local" | "reddit";
-  createdUtc?: number | null;
-  accountAgeYears?: number | null;
-  linkKarma?: number | null;
-  commentKarma?: number | null;
-  totalKarma?: number | null;
-  behaviorArchetype?: BehaviorArchetype | null;
-  hasVerifiedEmail?: boolean | null;
-  isVerified?: boolean | null;
-  hasPremium?: boolean | null;
-  prefersNightmode?: boolean | null;
-  over18?: boolean | null;
-  isModeratorLike?: boolean | null;
-  cakeDayYear?: number | null;
-  cakeDayMonth?: number | null;
-  preferredImageUrl?: string | null;
+  displayName: string | null;
+  avatarUrl: string | null;
+  title: string | null;
+  followers: number | null;
+  countryUrl: string | null;
+  joined: number | null;
+  lastOnline: number | null;
+  status: string | null;
+  isStreamer: boolean;
+  rapidRating: number | null;
+  rapidBest: number | null;
+  rapidWins: number | null;
+  rapidLosses: number | null;
+  rapidDraws: number | null;
+  blitzRating: number | null;
+  blitzBest: number | null;
+  blitzWins: number | null;
+  blitzLosses: number | null;
+  blitzDraws: number | null;
+  bulletRating: number | null;
+  bulletBest: number | null;
+  bulletWins: number | null;
+  bulletLosses: number | null;
+  bulletDraws: number | null;
+  dailyRating: number | null;
+  dailyBest: number | null;
+  dailyWins: number | null;
+  dailyLosses: number | null;
+  dailyDraws: number | null;
+  puzzleBest: number | null;
+  tacticsBest: number | null;
+  source: "local" | "chesscom";
+  lookupState: LookupState;
+  lookupMessage: string | null;
+  limitedData: boolean;
+  warnings: string[];
 };
